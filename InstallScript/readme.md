@@ -1,8 +1,4 @@
-# archBT
-
-Files I use for my arch installations and other fun arch things.
-
-## Install Script
+# Install Script
 
 Scripts for installing Arch.
 Run the install scripts in order for it to work.
