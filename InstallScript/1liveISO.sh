@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Bash Strict Mode [aaron maxwell](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+set -euo pipefail
+IFS=$'\n\t'
+
+# Force script PWD to be where the script is located
+cd "${0%/*}" 
+
+# Provide recommended settings
 echo 'RECOMMENDED UEFI SETTNGS:'
 echo 'PURE UEFI: ENABLED'
 echo 'CSM: DISABLED'
@@ -9,17 +17,19 @@ echo 'TPM: ENABLED (DISABLED AFTER SECURE BOOT KEY ENROLLED)'
 echo 'BIOS PASSWORD: ENABLED'
 echo 'USB BOOT: ENABLED (DISABLED AFTER INSTALL)'
 sleep 1
+
+# Check internet connection
 echo ''
 echo 'Testing network connection and resolution with ping to Archlinux.org'
 echo ''
 until ping -c1 www.archlinux.org >/dev/null 2>&1; do :; done
 
-# Gather environment variables for use in automated install
+# Gather environment variables for use in install
 read -rp 'Enter installation drive (Ex: /dev/sda or /dev/nvme0n1): ' INSTALL_DRIVE
-read -rp 'Enter boot partition (Ex: /dev/sda1 or /dev/nvme0n1p1): ' BOOT_PARTITION
-read -rp 'Enter root partition (Ex: /dev/sda2 or /dev/nvme0n1p2): ' ROOT_PARTITION
 read -rp 'Enter username: ' USER
 sleep 1
+
+# Set up partitioning
 echo ''
 echo 'Example:'
 echo 'On a 1TB drive with extra OP space'
@@ -29,37 +39,50 @@ echo 'Partition 3 is a linux swap (Double RAM)'
 echo 'FREE SPACE is for over-provisioning'
 echo ''
 read -n 1 -rp 'Press any key to continue'
-cfdisk $INSTALL_DRIVE
+cfdisk "${INSTALL_DRIVE}"
 
-# Sets up boot partition
+# Set up boot partition
 clear
-fdisk -l $INSTALL_DRIVE
+fdisk -l "${INSTALL_DRIVE}"
 echo ''
-fdisk -l $BOOT_PARTITION
+read -rp 'Enter boot partition (Ex: /dev/sda1 or /dev/nvme0n1p1): ' BOOT_PARTITION
+read -rp 'Enter root partition (Ex: /dev/sda2 or /dev/nvme0n1p2): ' ROOT_PARTITION
+echo ''
+fdisk -l "${BOOT_PARTITION}"
 echo ''
 read -n 1 -rp 'IS THIS THE RIGHT BOOT PARTITION TO FORMAT? [y/N] ' response
 echo ''
-if [[ "$response" =~ ^([yY])$ ]]
-then
-    mkfs.fat -c -F 32 -n BOOT $BOOT_PARTITION # Makes boot file system as FAT32 and confirms that sectors are good to use
+if [[ "$response" =~ ^([yY])$ ]]; then
+	# Makes boot file system as FAT32 and confirms that sectors are good to use
+    mkfs.fat -c -F 32 -n BOOT "${BOOT_PARTITION}"
 else
     echo 'Leaving installer, please rerun with correct boot partition.'
 	exit
 fi
 
-# Sets up root partition
+# Set up root partition
 clear
-fdisk -l $INSTALL_DRIVE
+fdisk -l "$INSTALL_DRIVE"
 echo ''
-fdisk -l $ROOT_PARTITION
+fdisk -l "$ROOT_PARTITION"
 echo ''
-echo 'Enter encryption password and confirm and open the partition'
-cryptsetup -v --hash sha512 luksFormat $ROOT_PARTITION # Enables encryption on the root partition
-cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open $ROOT_PARTITION root # Opens encrypted root partition so it can be formatted and used
-mkfs.btrfs -L ARCH /dev/mapper/root # Makes root file system formated to BTRFS 
 
-# Mounts encrypted btrfs partition to /mnt on live ISO
-mount /dev/mapper/root /mnt 
+# Set up encryption
+read -n 1 -rp 'Do you want LUKS2 Full Disk Encryption? [y/N] ' ENCRYPTION
+if [[ "$ENCRYPTION" =~ [yY] ]]; then
+	echo 'Enter encryption password and confirm and open the partition'
+	# Enables encryption on the root partition with SHA512 since standard is SHA256 and there is no harm going SHA512
+	cryptsetup -v --hash sha512 luksFormat "$ROOT_PARTITION"
+	# Opens encrypted root partition so it can be formatted and used
+	cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open "$ROOT_PARTITION" root
+	ROOT_PARTITION='/dev/mapper/root'
+fi
+
+# Makes root file system formated to BTRFS 
+mkfs.btrfs -L ARCH "$ROOT_PARTITION"
+
+# Mounts btrfs partition to /mnt on live ISO
+mount "$ROOT_PARTITION" /mnt 
 
 # Creates the subvolume setup for the btrfs partition [mruiz42](https://gist.github.com/mruiz42/83d9a232e7592d65d953671409a2aab9)
 # Based off of recommendations by [Snapper](https://wiki.archlinux.org/title/Snapper#Suggested_filesystem_layout) and [OpenSUSE](https://en.opensuse.org/SDB:BTRFS)
@@ -75,11 +98,13 @@ btrfs subvolume create /mnt/@opt # Mapped to /opt
 btrfs subvolume create /mnt/@root # Mapped to /root
 btrfs subvolume create /mnt/@usr_local # Mapped to /usr/local
 
-umount /mnt # Unmounts after creating subvolumes
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@ /dev/mapper/root /mnt # Mounts our btrfs root subvolume to /mnt with no access time, zstd compression, and TRIM
+# Unmounts after creating subvolumes
+umount /mnt
+# Mounts btrfs root subvolume to /mnt with no access time, zstd compression, and TRIM
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@ "$ROOT_PARTITION" /mnt
 
 # We need to make all the directories for our subvolumes
-mkdir /mnt/home
+mkdir -p /mnt/home/"$USER"/.cache
 mkdir /mnt/.snapshots
 mkdir -p /mnt/var/log
 mkdir -p /mnt/var/cache/pacman/pkg
@@ -90,53 +115,186 @@ mkdir /mnt/root
 mkdir -p /mnt/usr/local
 
 # We now need to mount all of the subvolumes
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@home /dev/mapper/root /mnt/home
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@snapshots /dev/mapper/root /mnt/.snapshots
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_log /dev/mapper/root /mnt/var/log
-mkdir -p /mnt/home/$USER/.cache # Make the home cache directory now that we mounted the home subvol.
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@userCache /dev/mapper/root /mnt/home/$USER/.cache
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@pkgCache /dev/mapper/root /mnt/var/cache/pacman/pkg
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_tmp /dev/mapper/root /mnt/var/tmp
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@images /dev/mapper/root /mnt/var/lib/libvirt/images
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@opt /dev/mapper/root /mnt/opt
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@root /dev/mapper/root /mnt/root
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@usr_local /dev/mapper/root /mnt/usr/local
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@home "$ROOT_PARTITION" /mnt/home
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@snapshots "$ROOT_PARTITION" /mnt/.snapshots
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_log "$ROOT_PARTITION" /mnt/var/log
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@userCache "$ROOT_PARTITION" /mnt/home/"$USER"/.cache
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@pkgCache "$ROOT_PARTITION" /mnt/var/cache/pacman/pkg
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_tmp "$ROOT_PARTITION" /mnt/var/tmp
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@images "$ROOT_PARTITION" /mnt/var/lib/libvirt/images
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@opt "$ROOT_PARTITION" /mnt/opt
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@root "$ROOT_PARTITION" /mnt/root
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@usr_local "$ROOT_PARTITION" /mnt/usr/local
 
-# Disable copy on write for VM images to help performance for VMs
+# Disable copy on write for VM images to help performance for VMs (May or may not work)
 chattr +C /mnt/var/lib/libvirt/images
 
 # Makes and mounts the boot partition to /boot/EFI and adds the directory ./Linux (since mkinitcpio can't seem to do it by itself)
 mkdir -p /mnt/boot/EFI/
-mount $BOOT_PARTITION /mnt/boot/EFI
+mount "$BOOT_PARTITION" /mnt/boot/EFI
 mkdir /mnt/boot/EFI/Linux
 
-# Install "required" packages to our new install
-pacstrap /mnt base base-devel linux linux-firmware linux-headers efibootmgr btrfs-progs networkmanager nano git opendoas cryptsetup sbctl linux-zen linux-zen-headers linux-lts linux-lts-headers
-read -n 1 -rp 'Do you have an Amd or Intel CPU or Neither? [a/i/N] ' response
-if [[ "$response" =~ ^([aA])$ ]]
-then
-	pacstrap /mnt amd-ucode xf86-video-amdgpu
-elif [[ "$response" =~ ^([iI])$ ]]
-then
-	pacstrap /mnt intel-ucode xf86-video-intel
+# Install "required" packages to new install
+pacstrap /mnt base base-devel linux-firmware efibootmgr btrfs-progs networkmanager git
+
+# Check for secure boot
+if [[ "$ENCRYPTION" =~ [yY] ]]; then
+	pacstrap /mnt cryptsetup
 fi
 
-timedatectl set-ntp true
-genfstab -U /mnt >> /mnt/etc/fstab # Create our fstab so the system can mount stuff properly
+# Prompt for kernels
+echo 'You will be prompted for 3 differnt kernels. You can select any/multiple as long as you pick at least one.'
+read -n 1 -rp 'Do you want linux-lts kernel? [y/N] ' LTS
+if [[ "$LTS" =~ ^([yY])$ ]]; then
+	pacstrap /mnt linux-lts linux-lts-headers
+fi
+read -n 1 -rp 'Do you want linux-zen kernel? [y/N] ' ZEN
+if [[ "$ZEN" =~ ^([yY])$ ]]; then
+	pacstrap /mnt linux-zen linux-zen-headers
+fi
 
-# Add support for encrypted swap
+if [[ ! "$LTS" =~ ^([yY])$ ]] && [[ ! "$ZEN" =~ ^([yY])$ ]]; then
+	echo "Installing Linux kernel since others weren't selected"
+	LINUX=Y
+	pacstrap /mnt linux-linux-headers
+else
+	read -n 1 -rp 'Do you want linux kernel? [y/N] ' LINUX
+	if [[ "$LINUX" =~ ^([yY])$ ]]; then
+		pacstrap /mnt linux-linux-headers
+	fi
+fi
+
+# Prompt for doas
+read -n 1 -rp 'Do you want doas to replace sudo? [y/N] ' DOAS
+if [[ "$DOAS" =~ ^([yY])$ ]]; then
+	pacstrap /mnt opendoas
+fi
+
+# Prompt for secure boot
+read -n 1 -rp 'Do you want secure boot support? [y/N] ' SECURE
+if [[ "$SECURE" =~ ^([yY])$ ]]; then
+	pacstrap /mnt sbctl
+fi
+
+# Prompt for X11/Wayland
+read -n 1 -rp 'Do you want X11 or Wayland or Both? [x/w/B] ' DISPLAY_SERVER
+
+read -n 1 -rp 'Do you have an Amd or Intel CPU or Neither? [a/i/N] ' response
+if [[ "$response" =~ ^([aA])$ ]]; then
+	pacstrap /mnt amd-ucode
+elif [[ "$response" =~ ^([iI])$ ]]; then
+	pacstrap /mnt intel-ucode
+fi
+
+# Prompt for 32 bit support
+read -n 1 -rp 'Do you want 32-bit support (e.g. Steam)? [y/N] ' LIB32
+if [[ "$LIB32" =~ ^([yY])$ ]]; then
+	# Adds multilib repository to install apps like steam
+	{
+  echo ''
+	echo '[multilib]'
+	echo 'Include = /etc/pacman.d/mirrorlist'
+  } >> /mnt/etc/pacman.conf
+fi
+
+# Prompt for accelerated video decoding
+read -n 1 -rp 'Do you want accelerated video decoding (e.g. VA-API & VDPAU)? [y/N] ' VACCEL
+
+read -n 1 -rp 'Do you have an Amd, nVidia or Intel CPU or Neither? [a/v/i/N] ' response
+if [[ "$response" =~ ^([aA])$ ]];  then
+	# Add DRI driver for 3D acceleration with mesa
+	# Add vulkan support with vulkan-radeon
+	pacstrap /mnt mesa vulkan-radeon
+	
+	# If using X then add 2D acceleration support in xorg
+	if [[ ! "$DISPLAY_SERVER" =~ ^([wW])$ ]]; then
+		pacstrap /mnt xf86-video-amdgpu
+	fi
+
+	# If 32 bit support add 32 bit packages
+	if [[ "$LIB32" =~ ^([yY])$ ]]; then
+		pacstrap /mnt lib32-mesa lib32-vulkan-radeon
+	fi
+
+	# If accelerated video decoding add packages
+	if [[ "$VACCEL" =~ ^([yY])$ ]]; then
+		pacstrap /mnt libva-mesa-driver mesa-vdpau
+		# If 32 bit support also add 32 bit accelerated video decoding
+		if [[ "$LIB32" =~ ^([yY])$ ]]; then
+			pacstrap /mnt lib32-libva-mesa-driver lib32-mesa-vdpau
+		fi
+	fi
+
+elif [[ "$response" =~ ^([vV])$ ]]
+then
+	# Check kernels to see what version to install
+	if [[ "$LINUX" =~ ^([yY])$ ]]; then
+		pacstrap /mnt nvidia
+  fi
+	if [[ "$LTS" =~ ^([yY])$ ]]; then
+		pacstrap /mnt nvidia-lts
+	fi
+	# If 32 bit support add 32 bit packages
+	if [[ "$LIB32" =~ ^([yY])$ ]]; then
+		pacstrap /mnt lib-32-nvidia-utils
+	fi
+	# VA-API support is offered through AUR package that has to be installed in user space
+elif [[ "$response" =~ ^([iI])$ ]]; then
+	# Add DRI driver for 3D acceleration with mesa
+	# Add vulkan support with vulkan-intel
+	pacstrap /mnt mesa vulkan-intel
+	
+	# If using X then add 2D acceleration support in xorg
+	if [[ ! "$DISPLAY_SERVER" =~ ^([wW])$ ]]; then
+		pacstrap /mnt xf86-video-intel
+	fi
+
+	# If 32 bit support add 32 bit packages
+	if [[ "$LIB32" =~ ^([yY])$ ]]; then
+		pacstrap /mnt lib32-mesa
+	fi
+
+	echo 'For video encoding/decoding Intel is a bit picky so follow the arch wiki to add support:'
+	echo 'https://wiki.archlinux.org/title/Hardware_video_acceleration'
+fi
+
+# Set clock using internet
+timedatectl set-ntp true
+
+# Create our fstab so the system can mount stuff properly
+genfstab -U /mnt >> /mnt/etc/fstab
+
+# Add support for swap
 clear
 read -n 1 -rp 'Do you have a swap partition? [y/N] ' response
-if [[ "$response" =~ ^([yY])$ ]]
-then
-    read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
-	echo '' >> /mnt/etc/crypttab
-	echo "swap           $SWAP_PARTITION                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
-	echo '/dev/mapper/swap				none		swap		sw	0 0' >> /mnt/etc/fstab
+if [[ "$response" =~ ^([yY])$ ]]; then
+  read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
+	if [[ "$ENCRYPTION" =~ [yY] ]]; then
+		echo '' >> /mnt/etc/crypttab
+		echo "swap           $SWAP_PARTITION                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
+		echo '/dev/mapper/swap				none		swap		sw	0 0' >> /mnt/etc/fstab
+	else
+		mkswap "$SWAP_PARTITION"
+		swapUUID=$(blkid -o value -s UUID "$SWAP_PARTITION")
+		echo '' >> /mnt/etc/fstab
+		echo '# Swap partition' >> /mnt/etc/fstab
+		echo "UUID=${swapUUID}	none	swap	sw	0 0"
+  fi
 fi
 
-echo ''
-echo '# git clone https://github.com/blaine-t/archBT'
-echo ''
-echo 'CLONE THE GITHUB REPO AND THEN CHMOD +x AND THEN RUN 2rootChroot.sh'
-arch-chroot /mnt # Changes into root on the new filesystem
+# Copy install script over
+mkdir /mnt/archBT
+cp ./* /mnt/archBT
+
+# Changes into root on the new filesystem
+arch-chroot /mnt /bin/bash -- << EOCHROOT
+  BOOT_PARTITON="${BOOT_PARTITION}";
+  ROOT_PARTITION="${ROOT_PARTITION}";
+  ENCRYPTION="${ENCRYPTION}";
+  DOAS="${DOAS}";
+  LINUX="${LINUX}";
+  LTS="${LTS}";
+  ZEN="${ZEN}";
+  SECURE="${SECURE}";
+  DISPLAY_SERVER="${DISPLAY_SERVER}";
+EOCHROOT

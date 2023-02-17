@@ -1,11 +1,13 @@
+#!/bin/bash
+
+# Bash Strict Mode [aaron maxwell](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+set -euo pipefail
+IFS=$'\n\t'
+
 cd "${0%/*}" # Forces script to be in same directory as linux.presets
 
-# Gather required info for installing boot "manager"
-read -p 'Enter boot partition (Ex: /dev/sda1 or /dev/nvme0np1): ' BOOT_PARTITION
-read -p 'Enter root partition (Ex: /dev/sda2 or /dev/nvme0n1p2): ' ROOT_PARTITION
-
 # Sets the local time
-read -p 'Enter timezone for system (Ex: America/Chicago): ' TIMEZONE
+read -rp 'Enter timezone for system (Ex: America/Chicago): ' TIMEZONE
 ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 hwclock --systohc
 
@@ -17,55 +19,64 @@ locale-gen
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf 
 
 # Prompts for hostname and shows username
-user=$(ls /home*/)
-echo "Username: $user"
-read -p 'Hostname: ' hostname
+USER=$(ls /home*/)
+echo "Username: $USER"
+read -rp 'Hostname: ' HOSTNAME
 
 # Sets up hostname
-echo "$hostname" > /etc/hostname
-echo '# Static table lookup for hostnames' > /etc/hosts
-echo '# See hosts(5) for details.' >> /etc/hosts
-echo '' >> /etc/hosts
-echo '127.0.0.1   localhost' >> /etc/hosts
-echo '::1         localhost' >> /etc/hosts
-echo "127.0.0.1   $hostname" >> /etc/hosts
-
-# Adds multilib repository to install apps like steam
-echo '' >> /etc/pacman.conf
-echo '[multilib]' >> /etc/pacman.conf
-echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
-
-# Adds btrfs, btrfs recovery, and encryption support to mkinitcpio hooks
+echo "$HOSTNAME" > /etc/hostname
+{
+  echo '# Static table lookup for hostnames'
+  echo '# See hosts(5) for details.'
+  echo ''
+  echo '127.0.0.1   localhost'
+  echo '::1         localhost'
+  echo "127.0.0.1   $HOSTNAME"
+} >> /etc/hosts
+# Adds btrfs and btrfs recovery support to mkinitcpio hooks
 sed -i 's,MODULES=(),MODULES=(btrfs),g' /etc/mkinitcpio.conf 
-sed -i 's,BINARIES=(),BINARIES=(btrfs),g' /etc/mkinitcpio.conf 
-sed -i 's,block filesystems keyboard,block encrypt filesystems keyboard,g' /etc/mkinitcpio.conf 
+sed -i 's,BINARIES=(),BINARIES=(btrfs),g' /etc/mkinitcpio.conf
+
+# If user selected encryption then add the hook
+if [[ "$ENCRYPTION" =~ [yY] ]]; then
+  sed -i 's,block filesystems keyboard,block encrypt filesystems keyboard,g' /etc/mkinitcpio.conf 
+fi
 
 # Speedup compiling for makepkg: https://gist.github.com/frandieguez/0b13bd58148679aa9955
 sed -i 's,#MAKEFLAGS="-j2",MAKEFLAGS="-j$(nproc)",g' /etc/makepkg.conf
 sed -i "s,PKGEXT='.pkg.tar.zst',PKGEXT='.pkg.tar',g" /etc/makepkg.conf
 
 # Creates the userspace user with a password and adds them to appropriate groups
-useradd $user
-usermod -aG wheel,audio,video,optical,storage $user
-chown "$user":"$user" -R "/home/$user"
+useradd "${USER}"
+usermod -aG wheel,audio,video,optical,storage "${USER}"
+chown "${USER}":"${USER}" -R "/home/$USER"
 echo 'Set the user'
-passwd $user
+passwd "${USER}"
 
-# Setup doas (a sudo replacement)
-pacman -Rns sudo --noconfirm
-echo 'permit persist :wheel' > /etc/doas.conf # Allows users in wheel group to execute doas
-ln -s /bin/doas /bin/sudo # Fix paru and other application issues and allows for user to type sudo instaed of doas and still works
-echo '' >> /etc/bash.bashrc
-echo 'complete -cf doas' >> /etc/bash.bashrc # Allows for proper autocomplete of doas
+# Setup doas (a sudo replacement if user wanted)
+if [[ "$DOAS" =~ [yY] ]]; then
+  pacman -Rns sudo --noconfirm
+  # Allows users in wheel group to execute doas
+  echo 'permit persist :wheel' > /etc/doas.conf
+  # Fix paru and other application issues and allows for user to type sudo instaed of doas and still works
+  ln -s /bin/doas /bin/sudo
+  echo '' >> /etc/bash.bashrc
+  # Allows for proper autocomplete of doas
+  echo 'complete -cf doas' >> /etc/bash.bashrc
+fi
 
 # Enable network control on boot
 systemctl enable NetworkManager
 
 # Setup boot "manager"
 # Grab the UUID of encrypted and decrypted root partition and use it in kernel parameters for boot [Reddit Post](https://www.reddit.com/r/archlinux/comments/m4aa0u/luks_encryption_with_efistub_boot/)
-EUUID=$(blkid -s UUID -o value $ROOT_PARTITION)
-RUUID=$(blkid -s UUID -o value /dev/mapper/root)
-echo "cryptdevice=UUID=$EUUID:root:allow-discards root=UUID=$RUUID rw rootflags=subvol=@ quiet loglevel=3 bgrt_disable" > /etc/kernel/cmdline
+if [[ "$ENCRYPTION" =~ [yY] ]]; then
+  EUUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
+  RUUID=$(blkid -s UUID -o value /dev/mapper/root)
+  echo "cryptdevice=UUID=$EUUID:root:allow-discards root=UUID=$RUUID rw rootflags=subvol=@ quiet loglevel=3 bgrt_disable" > /etc/kernel/cmdline
+else
+  echo "quiet bgrt_disable" > /etc/kernel/cmdline
+fi
 
 # Replace the default linux Unified Kernel Config with our new one
 rm /etc/mkinitcpio.d/linux.preset
@@ -76,27 +87,70 @@ cp ./linux-lts.preset /etc/mkinitcpio.d/
 cp ./linux-zen.preset /etc/mkinitcpio.d/
 
 # Add boot entries for standard linux and the fallback image
-efibootmgr --create --disk $BOOT_PARTITION --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
-efibootmgr --create --disk $BOOT_PARTITION --label 'Linux' --loader 'Linux\linux.efi' --verbose
-efibootmgr --create --disk $BOOT_PARTITION --label 'Linux-lts-fallback' --loader 'Linux\linux-lts-fallback.efi' --verbose
-efibootmgr --create --disk $BOOT_PARTITION --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
-efibootmgr --create --disk $BOOT_PARTITION --label 'Linux-zen-fallback' --loader 'Linux\linux-zen-fallback.efi' --verbose
-efibootmgr --create --disk $BOOT_PARTITION --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
+boot_entries=0
+query="Which entry should be in the 0 position in order "
+if [[ "$LINUX" =~ [yY] ]]; then
+boot_entries++
+query+="linu[X], "
+fi
+if [[ "$LTS" =~ [yY] ]]; then
+boot_entries++
+query+="[L]ts, "
+fi
+if [[ "$ZEN" =~ [yY] ]]; then
+boot_entries++
+query+="[Z]en, "
+fi
+# Replace trailing comma
+query=${query%, }"? "
+
+# Update amount of boot entries left
+query="${query/[[:digit:]]/$boot_entries}"
+
+while [[ "${boot_entries}" -gt 0 ]]; do
+  read -n 1 -rp "${query}" response
+  if [[ "$response" =~ [xX] ]]; then
+    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
+    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux' --loader 'Linux\linux.efi' --verbose
+    # Remove entry from list
+    query=${query/Linu[X], / }
+  elif [[ "$response" =~ [lL] ]]; then
+    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts-fallback' --loader 'Linux\linux-lts-fallback.efi' --verbose
+    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
+    # Remove entry from list
+    query=${query/[L]ts, / }
+  elif [[ "$response" =~ [zZ] ]]; then
+    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen-fallback' --loader 'Linux\linux-zen-fallback.efi' --verbose
+    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
+    # Remove entry from list
+    query=${query/[Z]en, / }
+  fi
+  # Update amount of boot entries left
+  query="${query/[[:digit:]]/$boot_entries}"
+done
 
 # Regenerate the initramfs
 mkinitcpio -P
 
 # Setup secure boot
-sbctl create-keys
-sbctl enroll-keys
-sbctl sign -s /boot/EFI/Linux/linux-fallback.efi
-sbctl sign -s /boot/EFI/Linux/linux.efi
-sbctl sign -s /boot/EFI/Linux/linux-lts-fallback.efi
-sbctl sign -s /boot/EFI/Linux/linux-lts.efi
-sbctl sign -s /boot/EFI/Linux/linux-zen-fallback.efi
-sbctl sign -s /boot/EFI/Linux/linux-zen.efi
-sbctl list-files
-sbctl status
+if [[ "$SECURE" =~ [yY] ]]; then
+  sbctl create-keys
+  sbctl enroll-keys
+  if [[ "$LINUX" =~ [yY] ]]; then
+    sbctl sign -s /boot/EFI/Linux/linux-fallback.efi
+    sbctl sign -s /boot/EFI/Linux/linux.efi
+  fi
+  if [[ "$LTS" =~ [yY] ]]; then
+    sbctl sign -s /boot/EFI/Linux/linux-lts-fallback.efi
+    sbctl sign -s /boot/EFI/Linux/linux-lts.efi
+  fi
+  if [[ "$ZEN" =~ [yY] ]]; then
+    sbctl sign -s /boot/EFI/Linux/linux-zen-fallback.efi
+    sbctl sign -s /boot/EFI/Linux/linux-zen.efi
+  fi
+  sbctl list-files
+  sbctl status
+fi
 
 echo ''
 echo 'If you messed up your user password now is the time to fix that.'
