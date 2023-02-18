@@ -85,19 +85,19 @@ query="Which entry should be in the 0 position in order "
 if [[ "$LINUX" =~ [yY] ]]; then
   rm /etc/mkinitcpio.d/linux.preset
   cp ./linux.preset /etc/mkinitcpio.d/
-  boot_entries++
+  ((boot_entries++))
   query+="linu[X], "
 fi
 if [[ "$LTS" =~ [yY] ]]; then
   rm /etc/mkinitcpio.d/linux-lts.preset
   cp ./linux-lts.preset /etc/mkinitcpio.d/
-  boot_entries++
+  ((boot_entries++))
   query+="[L]ts, "
 fi
 if [[ "$ZEN" =~ [yY] ]]; then
   rm /etc/mkinitcpio.d/linux-zen.preset
   cp ./linux-zen.preset /etc/mkinitcpio.d/
-  boot_entries++
+  ((boot_entries++))
   query+="[Z]en, "
 fi
 # Replace trailing comma

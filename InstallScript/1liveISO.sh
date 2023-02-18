@@ -137,7 +137,7 @@ mount "$BOOT_PARTITION" /mnt/boot/EFI
 mkdir /mnt/boot/EFI/Linux
 
 # Install "required" packages to new install
-pacstrap /mnt base base-devel linux-firmware efibootmgr btrfs-progs networkmanager git
+pacstrap /mnt base base-devel linux-firmware efibootmgr btrfs-progs networkmanager git nano
 
 # Check for secure boot
 if [[ "$ENCRYPTION" =~ [yY] ]]; then
