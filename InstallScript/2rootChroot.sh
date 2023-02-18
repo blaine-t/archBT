@@ -20,7 +20,6 @@ echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 
 # Prompts for hostname and shows username
 USER=$(ls /home*/)
-echo "Username: $USER"
 read -rp 'Hostname: ' HOSTNAME
 
 # Sets up hostname
@@ -47,11 +46,11 @@ sed -i 's,#MAKEFLAGS="-j2",MAKEFLAGS="-j$(nproc)",g' /etc/makepkg.conf
 sed -i "s,PKGEXT='.pkg.tar.zst',PKGEXT='.pkg.tar',g" /etc/makepkg.conf
 
 # Creates the userspace user with a password and adds them to appropriate groups
-useradd "${USER}"
-usermod -aG wheel,audio,video,optical,storage "${USER}"
-chown "${USER}":"${USER}" -R "/home/$USER"
+useradd "${USERNAME}"
+usermod -aG wheel,audio,video,optical,storage "${USERNAME}"
+chown "${USERNAME}":"${USERNAME}" -R "/home/${USERNAME}"
 echo 'Set the user'
-passwd "${USER}"
+passwd "${USERNAME}"
 
 # Setup doas (a sudo replacement if user wanted)
 if [[ "$DOAS" =~ [yY] ]]; then

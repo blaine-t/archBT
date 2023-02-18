@@ -26,7 +26,7 @@ until ping -c1 www.archlinux.org >/dev/null 2>&1; do :; done
 
 # Gather environment variables for use in install
 read -rp 'Enter installation drive (Ex: /dev/sda or /dev/nvme0n1): ' INSTALL_DRIVE
-read -rp 'Enter username: ' USER
+read -rp 'Enter username: ' USERNAME
 sleep 1
 
 # Set up partitioning
@@ -64,7 +64,7 @@ fi
 clear
 fdisk -l "$INSTALL_DRIVE"
 echo ''
-fdisk -l "$ROOT_PARTITION"
+fdisk -l "${ROOT_PARTITION}"
 echo ''
 
 # Set up encryption
@@ -72,17 +72,17 @@ read -n 1 -rp 'Do you want LUKS2 Full Disk Encryption? [y/N] ' ENCRYPTION
 if [[ "$ENCRYPTION" =~ [yY] ]]; then
 	echo 'Enter encryption password and confirm and open the partition'
 	# Enables encryption on the root partition with SHA512 since standard is SHA256 and there is no harm going SHA512
-	cryptsetup -v --hash sha512 luksFormat "$ROOT_PARTITION"
+	cryptsetup -v --hash sha512 luksFormat "${ROOT_PARTITION}"
 	# Opens encrypted root partition so it can be formatted and used
-	cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open "$ROOT_PARTITION" root
+	cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open "${ROOT_PARTITION}" root
 	ROOT_PARTITION='/dev/mapper/root'
 fi
 
 # Makes root file system formated to BTRFS 
-mkfs.btrfs -L ARCH "$ROOT_PARTITION"
+mkfs.btrfs -f -L ARCH "${ROOT_PARTITION}"
 
 # Mounts btrfs partition to /mnt on live ISO
-mount "$ROOT_PARTITION" /mnt 
+mount "${ROOT_PARTITION}" /mnt 
 
 # Creates the subvolume setup for the btrfs partition [mruiz42](https://gist.github.com/mruiz42/83d9a232e7592d65d953671409a2aab9)
 # Based off of recommendations by [Snapper](https://wiki.archlinux.org/title/Snapper#Suggested_filesystem_layout) and [OpenSUSE](https://en.opensuse.org/SDB:BTRFS)
@@ -101,10 +101,10 @@ btrfs subvolume create /mnt/@usr_local # Mapped to /usr/local
 # Unmounts after creating subvolumes
 umount /mnt
 # Mounts btrfs root subvolume to /mnt with no access time, zstd compression, and TRIM
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@ "$ROOT_PARTITION" /mnt
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@ "${ROOT_PARTITION}" /mnt
 
 # We need to make all the directories for our subvolumes
-mkdir -p /mnt/home/"$USER"/.cache
+mkdir -p /mnt/home/"${USERNAME}"/.cache
 mkdir /mnt/.snapshots
 mkdir -p /mnt/var/log
 mkdir -p /mnt/var/cache/pacman/pkg
@@ -115,16 +115,16 @@ mkdir /mnt/root
 mkdir -p /mnt/usr/local
 
 # We now need to mount all of the subvolumes
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@home "$ROOT_PARTITION" /mnt/home
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@snapshots "$ROOT_PARTITION" /mnt/.snapshots
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_log "$ROOT_PARTITION" /mnt/var/log
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@userCache "$ROOT_PARTITION" /mnt/home/"$USER"/.cache
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@pkgCache "$ROOT_PARTITION" /mnt/var/cache/pacman/pkg
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_tmp "$ROOT_PARTITION" /mnt/var/tmp
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@images "$ROOT_PARTITION" /mnt/var/lib/libvirt/images
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@opt "$ROOT_PARTITION" /mnt/opt
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@root "$ROOT_PARTITION" /mnt/root
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@usr_local "$ROOT_PARTITION" /mnt/usr/local
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@home "${ROOT_PARTITION}" /mnt/home
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@snapshots "${ROOT_PARTITION}" /mnt/.snapshots
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_log "${ROOT_PARTITION}" /mnt/var/log
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@userCache "${ROOT_PARTITION}" /mnt/home/"${USERNAME}"/.cache
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@pkgCache "${ROOT_PARTITION}" /mnt/var/cache/pacman/pkg
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_tmp "${ROOT_PARTITION}" /mnt/var/tmp
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@images "${ROOT_PARTITION}" /mnt/var/lib/libvirt/images
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@opt "${ROOT_PARTITION}" /mnt/opt
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@root "${ROOT_PARTITION}" /mnt/root
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@usr_local "${ROOT_PARTITION}" /mnt/usr/local
 
 # Disable copy on write for VM images to help performance for VMs (May or may not work)
 chattr +C /mnt/var/lib/libvirt/images
@@ -288,6 +288,7 @@ cp ./* /mnt/archBT
 
 # Changes into root on the new filesystem
 arch-chroot /mnt /bin/bash -- << EOCHROOT
+  USERNAME="${USERNAME}";
   BOOT_PARTITON="${BOOT_PARTITION}";
   ROOT_PARTITION="${ROOT_PARTITION}";
   ENCRYPTION="${ENCRYPTION}";
