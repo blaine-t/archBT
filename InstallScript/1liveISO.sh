@@ -147,10 +147,12 @@ fi
 # Prompt for kernels
 echo 'You will be prompted for 3 differnt kernels. You can select any/multiple as long as you pick at least one.'
 read -n 1 -rp 'Do you want linux-lts kernel? [y/N] ' LTS
+echo ''
 if [[ "$LTS" =~ ^([yY])$ ]]; then
 	pacstrap /mnt linux-lts linux-lts-headers
 fi
 read -n 1 -rp 'Do you want linux-zen kernel? [y/N] ' ZEN
+echo ''
 if [[ "$ZEN" =~ ^([yY])$ ]]; then
 	pacstrap /mnt linux-zen linux-zen-headers
 fi
@@ -158,30 +160,34 @@ fi
 if [[ ! "$LTS" =~ ^([yY])$ ]] && [[ ! "$ZEN" =~ ^([yY])$ ]]; then
 	echo "Installing Linux kernel since others weren't selected"
 	LINUX=Y
-	pacstrap /mnt linux-linux-headers
+	pacstrap /mnt linux linux-headers
 else
 	read -n 1 -rp 'Do you want linux kernel? [y/N] ' LINUX
+	echo ''
 	if [[ "$LINUX" =~ ^([yY])$ ]]; then
-		pacstrap /mnt linux-linux-headers
+		pacstrap /mnt linux linux-headers
 	fi
 fi
 
 # Prompt for doas
 read -n 1 -rp 'Do you want doas to replace sudo? [y/N] ' DOAS
+echo ''
 if [[ "$DOAS" =~ ^([yY])$ ]]; then
 	pacstrap /mnt opendoas
 fi
 
 # Prompt for secure boot
 read -n 1 -rp 'Do you want secure boot support? [y/N] ' SECURE
+echo ''
 if [[ "$SECURE" =~ ^([yY])$ ]]; then
 	pacstrap /mnt sbctl
 fi
 
 # Prompt for X11/Wayland
 read -n 1 -rp 'Do you want X11 or Wayland or Both? [x/w/B] ' DISPLAY_SERVER
-
+echo ''
 read -n 1 -rp 'Do you have an Amd or Intel CPU or Neither? [a/i/N] ' response
+echo ''
 if [[ "$response" =~ ^([aA])$ ]]; then
 	pacstrap /mnt amd-ucode
 elif [[ "$response" =~ ^([iI])$ ]]; then
@@ -190,6 +196,7 @@ fi
 
 # Prompt for 32 bit support
 read -n 1 -rp 'Do you want 32-bit support (e.g. Steam)? [y/N] ' LIB32
+echo ''
 if [[ "$LIB32" =~ ^([yY])$ ]]; then
 	# Adds multilib repository to install apps like steam
 	{
@@ -201,8 +208,9 @@ fi
 
 # Prompt for accelerated video decoding
 read -n 1 -rp 'Do you want accelerated video decoding (e.g. VA-API & VDPAU)? [y/N] ' VACCEL
-
+echo ''
 read -n 1 -rp 'Do you have an Amd, nVidia or Intel CPU or Neither? [a/v/i/N] ' response
+echo ''
 if [[ "$response" =~ ^([aA])$ ]];  then
 	# Add DRI driver for 3D acceleration with mesa
 	# Add vulkan support with vulkan-radeon
@@ -271,6 +279,7 @@ clear
 read -n 1 -rp 'Do you have a swap partition? [y/N] ' response
 if [[ "$response" =~ ^([yY])$ ]]; then
   read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
+  echo ''
 	if [[ "$ENCRYPTION" =~ [yY] ]]; then
 		echo '' >> /mnt/etc/crypttab
 		echo "swap           $SWAP_PARTITION                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
@@ -278,9 +287,11 @@ if [[ "$response" =~ ^([yY])$ ]]; then
 	else
 		mkswap "$SWAP_PARTITION"
 		swapUUID=$(blkid -o value -s UUID "$SWAP_PARTITION")
-		echo '' >> /mnt/etc/fstab
-		echo '# Swap partition' >> /mnt/etc/fstab
-		echo "UUID=${swapUUID}	none	swap	sw	0 0"
+		{
+		  echo ''
+		  echo '# Swap partition'
+		  echo "UUID=${swapUUID}	none	swap	sw	0 0"
+		} >> /mnt/etc/fstab
   fi
 fi
 
