@@ -119,7 +119,7 @@ mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@home "${RO
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@snapshots "${ROOT_PARTITION}" /mnt/.snapshots
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_log "${ROOT_PARTITION}" /mnt/var/log
 # Create cache directory after mounting home
-mkdir -p /mnt/home/"$USER"/.cache
+mkdir -p /mnt/home/"${USERNAME}"/.cache
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@userCache "${ROOT_PARTITION}" /mnt/home/"${USERNAME}"/.cache
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@pkgCache "${ROOT_PARTITION}" /mnt/var/cache/pacman/pkg
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_tmp "${ROOT_PARTITION}" /mnt/var/tmp
@@ -277,6 +277,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 # Add support for swap
 clear
 read -n 1 -rp 'Do you have a swap partition? [y/N] ' response
+echo ''
 if [[ "$response" =~ ^([yY])$ ]]; then
   read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
   echo ''
@@ -288,27 +289,29 @@ if [[ "$response" =~ ^([yY])$ ]]; then
 		mkswap "$SWAP_PARTITION"
 		swapUUID=$(blkid -o value -s UUID "$SWAP_PARTITION")
 		{
-		  echo ''
 		  echo '# Swap partition'
 		  echo "UUID=${swapUUID}	none	swap	sw	0 0"
+      echo ''
 		} >> /mnt/etc/fstab
   fi
 fi
 
 # Copy install script over
-mkdir /mnt/archBT
-cp ./* /mnt/archBT
+mkdir -p /mnt/archBT/InstallScript
+cp ./* /mnt/archBT/InstallScript
+
+# Export variables for other scripts to use
+export USERNAME
+export BOOT_PARTITON
+export ROOT_PARTITION
+export ENCRYPTION
+export DOAS
+export LINUX
+export LTS
+export ZEN
+export SECURE
+export DISPLAY_SERVER
 
 # Changes into root on the new filesystem
-arch-chroot /mnt /bin/bash -- << EOCHROOT
-  USERNAME="${USERNAME}";
-  BOOT_PARTITON="${BOOT_PARTITION}";
-  ROOT_PARTITION="${ROOT_PARTITION}";
-  ENCRYPTION="${ENCRYPTION}";
-  DOAS="${DOAS}";
-  LINUX="${LINUX}";
-  LTS="${LTS}";
-  ZEN="${ZEN}";
-  SECURE="${SECURE}";
-  DISPLAY_SERVER="${DISPLAY_SERVER}";
-EOCHROOT
+echo 'CD to /archBT/INstallScript and run 2rootChroot.sh'
+arch-chroot /mnt
