@@ -104,11 +104,11 @@ umount /mnt
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@ "${ROOT_PARTITION}" /mnt
 
 # We need to make all the directories for our subvolumes
-mkdir -p /mnt/home/"${USERNAME}"/.cache
+mkdir /mnt/home/
 mkdir /mnt/.snapshots
 mkdir -p /mnt/var/log
 mkdir -p /mnt/var/cache/pacman/pkg
-mkdir /mnt/var/tmp
+mkdir -p /mnt/var/tmp
 mkdir -p /mnt/var/lib/libvirt/images
 mkdir /mnt/opt
 mkdir /mnt/root
@@ -118,6 +118,8 @@ mkdir -p /mnt/usr/local
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@home "${ROOT_PARTITION}" /mnt/home
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@snapshots "${ROOT_PARTITION}" /mnt/.snapshots
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_log "${ROOT_PARTITION}" /mnt/var/log
+# Create cache directory after mounting home
+mkdir -p /mnt/home/"$USER"/.cache
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@userCache "${ROOT_PARTITION}" /mnt/home/"${USERNAME}"/.cache
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@pkgCache "${ROOT_PARTITION}" /mnt/var/cache/pacman/pkg
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_tmp "${ROOT_PARTITION}" /mnt/var/tmp
