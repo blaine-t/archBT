@@ -302,7 +302,7 @@ cp ./* /mnt/archBT/InstallScript
 
 # Export variables for other scripts to use
 export USERNAME
-export BOOT_PARTITON
+export BOOT_PARTITION
 export ROOT_PARTITION
 export ENCRYPTION
 export DOAS

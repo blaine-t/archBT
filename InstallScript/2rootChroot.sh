@@ -108,6 +108,7 @@ query="${query/[[:digit:]]/$boot_entries}"
 
 while [[ "${boot_entries}" -gt 0 ]]; do
   read -n 1 -rp "${query}" response
+  echo ''
   if [[ "$response" =~ [xX] ]]; then
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux' --loader 'Linux\linux.efi' --verbose
