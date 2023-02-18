@@ -62,6 +62,8 @@ if [[ "$DOAS" =~ [yY] ]]; then
   echo '' >> /etc/bash.bashrc
   # Allows for proper autocomplete of doas
   echo 'complete -cf doas' >> /etc/bash.bashrc
+else
+  echo '%wheel      ALL=(ALL:ALL) ALL' >> /etc/sudoers
 fi
 
 # Enable network control on boot
@@ -114,19 +116,19 @@ while [[ "${boot_entries}" -gt 0 ]]; do
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux' --loader 'Linux\linux.efi' --verbose
     # Remove entry from list
-    query=${query/Linu[X], / }
+    query=${query//"Linu[X], "/ }
     boot_entries=$((boot_entries - 1))
   elif [[ "$response" =~ [lL] ]]; then
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts-fallback' --loader 'Linux\linux-lts-fallback.efi' --verbose
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
     # Remove entry from list
-    query=${query/[L]ts, / }
+    query=${query//"[L]ts, "/ }
     boot_entries=$((boot_entries - 1))
   elif [[ "$response" =~ [zZ] ]]; then
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen-fallback' --loader 'Linux\linux-zen-fallback.efi' --verbose
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
     # Remove entry from list
-    query=${query/[Z]en, / }
+    query=${query//"[Z]en, "/ }
     boot_entries=$((boot_entries - 1))
   fi
   # Update amount of boot entries left
