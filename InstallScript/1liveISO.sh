@@ -203,7 +203,7 @@ if [[ "$LIB32" =~ ^([yY])$ ]]; then
   echo ''
 	echo '[multilib]'
 	echo 'Include = /etc/pacman.d/mirrorlist'
-  } >> /mnt/etc/pacman.conf
+  } | tee -a /etc/pacman.conf /mnt/etc/pacman.conf
 fi
 
 # Prompt for accelerated video decoding
@@ -246,7 +246,7 @@ then
 	fi
 	# If 32 bit support add 32 bit packages
 	if [[ "$LIB32" =~ ^([yY])$ ]]; then
-		pacstrap /mnt lib-32-nvidia-utils
+		pacstrap /mnt lib32-nvidia-utils
 	fi
 	# VA-API support is offered through AUR package that has to be installed in user space
 elif [[ "$response" =~ ^([iI])$ ]]; then
