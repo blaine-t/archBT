@@ -139,7 +139,13 @@ mkinitcpio -P
 # Setup secure boot
 if [[ "$SECURE" =~ [yY] ]]; then
   sbctl create-keys
-  sbctl enroll-keys
+  if [[ "$GPU" =~ ^([vV])$ ]]; then
+    # Since NVIDIA is a pain we have to use microsoft keys
+    sbctl enroll-keys --microsoft
+  else
+    # For other GPUs we can use our custom ones most of the time
+    sbctl enroll-keys
+  fi
   if [[ "$LINUX" =~ [yY] ]]; then
     sbctl sign -s /boot/EFI/Linux/linux-fallback.efi
     sbctl sign -s /boot/EFI/Linux/linux.efi

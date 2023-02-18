@@ -209,9 +209,9 @@ fi
 # Prompt for accelerated video decoding
 read -n 1 -rp 'Do you want accelerated video decoding (e.g. VA-API & VDPAU)? [y/N] ' VACCEL
 echo ''
-read -n 1 -rp 'Do you have an Amd, nVidia or Intel CPU or Neither? [a/v/i/N] ' response
+read -n 1 -rp 'Do you have an Amd, nVidia or Intel CPU or Neither? [a/v/i/N] ' GPU
 echo ''
-if [[ "$response" =~ ^([aA])$ ]];  then
+if [[ "$GPU" =~ ^([aA])$ ]];  then
 	# Add DRI driver for 3D acceleration with mesa
 	# Add vulkan support with vulkan-radeon
 	pacstrap /mnt mesa vulkan-radeon
@@ -235,21 +235,17 @@ if [[ "$response" =~ ^([aA])$ ]];  then
 		fi
 	fi
 
-elif [[ "$response" =~ ^([vV])$ ]]
-then
-	# Check kernels to see what version to install
-	if [[ "$LINUX" =~ ^([yY])$ ]]; then
-		pacstrap /mnt nvidia
-  fi
-	if [[ "$LTS" =~ ^([yY])$ ]]; then
-		pacstrap /mnt nvidia-lts
-	fi
+elif [[ "$GPU" =~ ^([vV])$ ]]; then
+	# Install Nvidia-DKMS to have support for all kernels no matter what
+	pacstrap /mnt nvidia-dkms
+
 	# If 32 bit support add 32 bit packages
 	if [[ "$LIB32" =~ ^([yY])$ ]]; then
 		pacstrap /mnt lib32-nvidia-utils
 	fi
-	# VA-API support is offered through AUR package that has to be installed in user space
-elif [[ "$response" =~ ^([iI])$ ]]; then
+	echo 'VA-API support is offered through AUR package that has to be installed in user space'
+	echo 'https://wiki.archlinux.org/title/Hardware_video_acceleration'
+elif [[ "$GPU" =~ ^([iI])$ ]]; then
 	# Add DRI driver for 3D acceleration with mesa
 	# Add vulkan support with vulkan-intel
 	pacstrap /mnt mesa vulkan-intel
@@ -311,6 +307,7 @@ export LTS
 export ZEN
 export SECURE
 export DISPLAY_SERVER
+export GPU
 
 # Changes into root on the new filesystem
 echo 'CD to /archBT/INstallScript and run 2rootChroot.sh'
