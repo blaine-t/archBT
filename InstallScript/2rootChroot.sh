@@ -72,9 +72,10 @@ systemctl enable NetworkManager
 if [[ "$ENCRYPTION" =~ [yY] ]]; then
   EUUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
   RUUID=$(blkid -s UUID -o value /dev/mapper/root)
-  echo "cryptdevice=UUID=$EUUID:root:allow-discards root=UUID=$RUUID rw rootflags=subvol=@ quiet loglevel=3 bgrt_disable" > /etc/kernel/cmdline
+  echo "cryptdevice=UUID=$EUUID:root:allow-discards root=UUID=$RUUID rw rootflags=subvol=@ quiet bgrt_disable" > /etc/kernel/cmdline
 else
-  echo "quiet bgrt_disable" > /etc/kernel/cmdline
+  PRUUID=$(blkid -s PARTUUID -o value "${ROOT_PARTITION}")
+  echo "root=PARTUUID=${PRUUID} rw rootflags=subvol=@ quiet bgrt_disable" > /etc/kernel/cmdline
 fi
 
 # Add boot entries for standard linux and the fallback image
