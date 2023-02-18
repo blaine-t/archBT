@@ -54,11 +54,11 @@ passwd "${USERNAME}"
 
 # Setup doas (a sudo replacement if user wanted)
 if [[ "$DOAS" =~ [yY] ]]; then
-  pacman -Rns sudo --noconfirm
+  echo 'Cannot remove sudo since dependency of base-devel. If you want to delete create a pseudo package'
   # Allows users in wheel group to execute doas
-  echo 'permit persist :wheel' > /etc/doas.conf
+  echo 'permit persist setenv { XAUTHORITY LANG LC_ALL } :wheel' > /etc/doas.conf
   # Fix paru and other application issues and allows for user to type sudo instaed of doas and still works
-  ln -s /bin/doas /bin/sudo
+  # ln -s /bin/doas /bin/sudo (Do this if you remove sudo)
   echo '' >> /etc/bash.bashrc
   # Allows for proper autocomplete of doas
   echo 'complete -cf doas' >> /etc/bash.bashrc
