@@ -77,28 +77,28 @@ else
   echo "quiet bgrt_disable" > /etc/kernel/cmdline
 fi
 
-# Replace the default linux Unified Kernel Config with our new one
-rm /etc/mkinitcpio.d/linux.preset
-rm /etc/mkinitcpio.d/linux-lts.preset
-rm /etc/mkinitcpio.d/linux-zen.preset
-cp ./linux.preset /etc/mkinitcpio.d/
-cp ./linux-lts.preset /etc/mkinitcpio.d/
-cp ./linux-zen.preset /etc/mkinitcpio.d/
-
 # Add boot entries for standard linux and the fallback image
+# AND
+# Replace the default linux Unified Kernel Config with our new one
 boot_entries=0
 query="Which entry should be in the 0 position in order "
 if [[ "$LINUX" =~ [yY] ]]; then
-boot_entries++
-query+="linu[X], "
+  rm /etc/mkinitcpio.d/linux.preset
+  cp ./linux.preset /etc/mkinitcpio.d/
+  boot_entries++
+  query+="linu[X], "
 fi
 if [[ "$LTS" =~ [yY] ]]; then
-boot_entries++
-query+="[L]ts, "
+  rm /etc/mkinitcpio.d/linux-lts.preset
+  cp ./linux-lts.preset /etc/mkinitcpio.d/
+  boot_entries++
+  query+="[L]ts, "
 fi
 if [[ "$ZEN" =~ [yY] ]]; then
-boot_entries++
-query+="[Z]en, "
+  rm /etc/mkinitcpio.d/linux-zen.preset
+  cp ./linux-zen.preset /etc/mkinitcpio.d/
+  boot_entries++
+  query+="[Z]en, "
 fi
 # Replace trailing comma
 query=${query%, }"? "
