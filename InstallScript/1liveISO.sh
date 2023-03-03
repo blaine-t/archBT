@@ -67,9 +67,13 @@ echo ''
 fdisk -l "${ROOT_PARTITION}"
 echo ''
 
+# For UUID encryption support
+ORIGINAL_ROOT_PARTITION="${ROOT_PARTITION}"
+
 # Set up encryption
 read -n 1 -rp 'Do you want LUKS2 Full Disk Encryption? [y/N] ' ENCRYPTION
 if [[ "$ENCRYPTION" =~ [yY] ]]; then
+	echo ''
 	echo 'Enter encryption password and confirm and open the partition'
 	# Enables encryption on the root partition with SHA512 since standard is SHA256 and there is no harm going SHA512
 	cryptsetup -v --hash sha512 luksFormat "${ROOT_PARTITION}"
@@ -300,6 +304,7 @@ cp ./* /mnt/archBT/InstallScript
 export USERNAME
 export BOOT_PARTITION
 export ROOT_PARTITION
+export ORIGINAL_ROOT_PARTITION
 export ENCRYPTION
 export DOAS
 export LINUX

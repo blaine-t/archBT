@@ -72,7 +72,7 @@ systemctl enable NetworkManager
 # Setup boot "manager"
 # Grab the UUID of encrypted and decrypted root partition and use it in kernel parameters for boot [Reddit Post](https://www.reddit.com/r/archlinux/comments/m4aa0u/luks_encryption_with_efistub_boot/)
 if [[ "$ENCRYPTION" =~ [yY] ]]; then
-  EUUID=$(blkid -s UUID -o value "${ROOT_PARTITION}")
+  EUUID=$(blkid -s UUID -o value "${ORIGINAL_ROOT_PARTITION}")
   RUUID=$(blkid -s UUID -o value /dev/mapper/root)
   echo "cryptdevice=UUID=$EUUID:root:allow-discards root=UUID=$RUUID rw rootflags=subvol=@ quiet bgrt_disable" > /etc/kernel/cmdline
 else
