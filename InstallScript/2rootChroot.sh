@@ -22,15 +22,20 @@ echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 USER=$(ls /home*/)
 read -rp 'Hostname: ' HOSTNAME
 
-# Sets up hostname
+# Sets up hostname and hosts file
 echo "$HOSTNAME" > /etc/hostname
 {
   echo '# Static table lookup for hostnames'
   echo '# See hosts(5) for details.'
   echo ''
+  echo '# IPv4'
   echo '127.0.0.1   localhost'
-  echo '::1         localhost'
-  echo "127.0.0.1   $HOSTNAME"
+  echo "127.0.1.1   $HOSTNAME"
+  echo ''
+  echo '# IPv6'
+  echo '::1             localhost ip6-localhost ip6-loopback'
+  echo 'ff02::1         ip6-allnodes'
+  echo 'ff02::2         ip6-allrouters'
 } >> /etc/hosts
 # Adds btrfs and btrfs recovery support to mkinitcpio hooks
 sed -i 's,MODULES=(),MODULES=(btrfs),g' /etc/mkinitcpio.conf 

@@ -286,7 +286,7 @@ if [[ "$response" =~ ^([yY])$ ]]; then
 		echo "swap           $SWAP_PARTITION                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
 		echo '/dev/mapper/swap				none		swap		sw	0 0' >> /mnt/etc/fstab
 	else
-		mkswap "$SWAP_PARTITION"
+		mkswap -L SWAP "$SWAP_PARTITION"
 		swapUUID=$(blkid -o value -s UUID "$SWAP_PARTITION")
 		{
 		  echo '# Swap partition'
