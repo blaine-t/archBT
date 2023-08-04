@@ -297,8 +297,8 @@ if [[ "$response" =~ ^([yY])$ ]]; then
 fi
 
 # Copy install script over
-mkdir -p /mnt/archBT/InstallScript
-cp ./* /mnt/archBT/InstallScript
+mkdir -p /mnt/archBT
+cp ./* /mnt/archBT
 
 # Export variables for other scripts to use
 export USERNAME
@@ -315,5 +315,5 @@ export DISPLAY_SERVER
 export GPU
 
 # Changes into root on the new filesystem
-echo 'CD to /archBT/InstallScript and run 2rootChroot.sh'
+echo 'CD to /archBT and run 2rootChroot.sh'
 arch-chroot /mnt

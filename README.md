@@ -1,13 +1,11 @@
 # archBT
 
-Files I use for my arch installations and other fun arch things.
-
-## Install Script
+Files I use for my arch installations.
 
 Scripts for installing Arch.
 
 Run the install scripts in order for it to work.
 
-Scripts install an encrypted BTRFS filesystem with EFISTUBs for boot with Secure Boot support. Comes with KDE Plasma X11 and Wayland. Used for the "Ultimate Arch Install"
+Scripts install an optionally encrypted BTRFS filesystem with EFISTUBs for boot with Secure Boot support. Comes with KDE Plasma X11 and/or Wayland. Also comes with patches for using Wayland on optional applications. Used for the "Ultimate Arch Install"
 
 MAKE SURE TO FOLLOW INSTRUCTIONS CAREFULLY!!!
