@@ -1,0 +1,17 @@
+[Desktop Action new-private-window]
+Exec=/usr/bin/chromium --incognito
+Name=New Incognito Window
+
+[Desktop Action new-window]
+Exec=/usr/bin/chromium
+Name=New Window
+
+[Desktop Entry]
+Actions=new-window;new-private-window;
+Categories=Network;WebBrowser;
+Comment=Access the Internet
+GenericName=Web Browser
+MimeType=text/html;image/webp;image/png;image/jpeg;image/gif;application/xml;application/xml;application/xhtml+xml;application/rss+xml;application/rdf+xml;application/pdf;
+Name=Chromium
+Icon=chromium
+Exec=/usr/bin/chromium %U --enable-features=VaapiVideoDecodeLinuxGL --ozone-platform-hint=auto

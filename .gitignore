@@ -1,0 +1,3 @@
+secrets/.gnupg
+secrets/wg*
+secrets/ovpn*

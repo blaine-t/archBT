@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=GNOME;GTK;Network;InstantMessaging;
+Comment=Slack Desktop
+Exec=/usr/bin/slack -s %U --enable-features=WaylandWindowDecorations --ozone-platform-hint=auto
+GenericName=Slack Client for Linux
+Icon=slack
+Name=Slack
+StartupWMClass=Slack

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=Network;Chat;InstantMessaging;Application;
+Comment=Unofficial Microsoft Teams client for Linux.
+Exec=teams-for-linux %U --enable-features=WaylandWindowDecorations --ozone-platform-hint=auto
+GenericName[en_US]=Teams
+GenericName=Teams
+Icon=teams-for-linux
+Name=Microsoft Teams for Linux
+Type=Application
+Version=0.1.9
+MimeType=x-scheme-handler/msteams;
