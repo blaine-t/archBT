@@ -116,6 +116,9 @@ source ~/.profile
 
 # Install Spotify xWayland to have media support
 sudo pacman -S spotify-launcher
+paru spicetify-cli
+paru spicetify-themes-git
+cp config/config-xpui.ini ~/.config/spicetify/config-xpui.ini
 
 # Install Steam (32-bit xwayland cause Steam is ancient dinosaur)
 sudo pacman -S steam
@@ -154,3 +157,16 @@ paru eclipse-java
 # Fix font aliasing in GTK apps (needs relogin)
 sudo pacman -S xdg-desktop-portal-gtk
 # To setup gpg signing go to preferences and lookup gpg and switch from bouncy castle to an external gpg executable /usr/bin/gpg
+
+# libvirt install
+# Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
+sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm
+sudo usermod -aG libvirt $USER
+# Uncomment unix_sock_group and unix_sock_rw in /etc/libvirt/libvirtd.conf
+# Uncomment user and group and set them to your username in /etc/libvirt/qemu.conf
+# In virt-manager you can remove the system QEMU connection and add a User Session QEMU connections
+
+# Oh my bash install
+paru oh-my-bash-git
+cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
+source ~/.bashrc
