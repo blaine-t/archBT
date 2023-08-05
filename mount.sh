@@ -9,7 +9,7 @@ mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_log "$
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@userCache "${ROOT_PARTITION}" /mnt/home/"${USERNAME}"/.cache
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@pkgCache "${ROOT_PARTITION}" /mnt/var/cache/pacman/pkg
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@var_tmp "${ROOT_PARTITION}" /mnt/var/tmp
-mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@images "${ROOT_PARTITION}" /mnt/var/lib/libvirt/images
+mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@images "${ROOT_PARTITION}" /mnt/home/"${USERNAME}"/.local/share/libvirt/images
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@opt "${ROOT_PARTITION}" /mnt/opt
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@root "${ROOT_PARTITION}" /mnt/root
 mount -o noatime,commit=120,compress-force=zstd,discard=async,subvol=@usr_local "${ROOT_PARTITION}" /mnt/usr/local
