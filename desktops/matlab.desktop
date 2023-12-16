@@ -1,8 +1,0 @@
-[Desktop Entry]
-Categories=Development;Education;Science;Mathematics;IDE;
-Comment=Programming and numeric computing platform
-Exec=env LIBGL_DRI3_DISABLE=1 matlab -desktop
-GenericName=MATLAB
-Icon=matlab
-MimeType=text/x-matlab;
-Name=MATLAB R2023a

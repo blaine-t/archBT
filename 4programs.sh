@@ -41,8 +41,10 @@ sudo pacman -S kinfocenter
 
 # Install chromium with video accel for video decoding ADD INTEL TO SCRIPT
 sudo pacman -S libva-utils vdpauinfo
-export VDPAU_DRIVER=va_gl
+# Intel only
+sudo pacman -S intel-media-driver libvdpau-va-gl intel-gpu-tools
 echo "export VDPAU_DRIVER=va_gl" >> ~/.profile
+echo "export LIBVA_DRIVER_NAME=iHD" >> ~/.profile
 source ~/.profile
 paru chromium-wayland-vaapi
 cp desktops/chrominum.desktop ~/.local/share/applications

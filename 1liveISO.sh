@@ -215,7 +215,7 @@ fi
 # Prompt for accelerated video decoding
 read -n 1 -rp 'Do you want accelerated video decoding (e.g. VA-API & VDPAU)? [y/N] ' VACCEL
 echo ''
-read -n 1 -rp 'Do you have an Amd, nVidia or Intel CPU or Neither? [a/v/i/N] ' GPU
+read -n 1 -rp 'Do you have an Amd, nVidia or Intel GPU or Neither? [a/v/i/N] ' GPU
 echo ''
 if [[ "$GPU" =~ ^([aA])$ ]];  then
 	# Add DRI driver for 3D acceleration with mesa
@@ -258,12 +258,12 @@ elif [[ "$GPU" =~ ^([iI])$ ]]; then
 	
 	# If using X then add 2D acceleration support in xorg
 	if [[ ! "$DISPLAY_SERVER" =~ ^([wW])$ ]]; then
-		pacstrap /mnt xf86-video-intel
+		pacstrap /mnt xorg-server
 	fi
 
 	# If 32 bit support add 32 bit packages
 	if [[ "$LIB32" =~ ^([yY])$ ]]; then
-		pacstrap /mnt lib32-mesa
+		pacstrap /mnt lib32-mesa lib32-vulkan-intel
 	fi
 
 	echo 'For video encoding/decoding Intel is a bit picky so follow the arch wiki to add support:'
