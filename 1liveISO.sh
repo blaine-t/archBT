@@ -36,7 +36,8 @@ cat << EOF
 Example:
 On a 1TB drive with extra OP space
 Partition 1 is an EFI system partition (1G)
-Partition 2 is a linux filesystem (900G)
+Partition 2 is a linux filesystem (800G)
+Partition 3 is a linux swap (Double RAM)
 FREE SPACE is for over-provisioning
 
 EOF
@@ -72,6 +73,7 @@ echo
 # Set up encryption
 # [Encryption page](https://bcachefs.org/Encryption/)
 read -n 1 -rp 'Do you want to use bcachefs encryption? [y/N] ' ENCRYPTION
+echo
 if [[ "$ENCRYPTION" =~ [yY] ]]; then
 	bcachefs format --encrypted "${ROOT_PARTITION}"
 	bcachefs unlock "${ROOT_PARTITION}"
@@ -92,12 +94,12 @@ pacstrap /mnt base base-devel linux-firmware efibootmgr networkmanager git nano
 
 # Prompt for kernels
 echo 'You will be prompted for 3 differnt kernels. You can select any/multiple as long as you pick at least one. (LTS CURRENTLY DOESNT SUPPORT BCACHEFS)'
-read -n 1 -rp 'Do you want linux-lts kernel? [y/N] ' LTS
+read -n 1 -rp 'Do you want the linux-lts kernel? [y/N] ' LTS
 echo
 if [[ "$LTS" =~ ^([yY])$ ]]; then
 	pacstrap /mnt linux-lts linux-lts-headers
 fi
-read -n 1 -rp 'Do you want linux-zen kernel? [y/N] ' ZEN
+read -n 1 -rp 'Do you want the linux-zen kernel? [y/N] ' ZEN
 echo
 if [[ "$ZEN" =~ ^([yY])$ ]]; then
 	pacstrap /mnt linux-zen linux-zen-headers
@@ -108,7 +110,7 @@ if [[ ! "$LTS" =~ ^([yY])$ ]] && [[ ! "$ZEN" =~ ^([yY])$ ]]; then
 	LINUX=Y
 	pacstrap /mnt linux linux-headers
 else
-	read -n 1 -rp 'Do you want linux kernel? [y/N] ' LINUX
+	read -n 1 -rp 'Do you want the linux kernel? [y/N] ' LINUX
 	echo
 	if [[ "$LINUX" =~ ^([yY])$ ]]; then
 		pacstrap /mnt linux linux-headers
@@ -147,6 +149,7 @@ read -n 1 -rp 'Do you want 32-bit support (e.g. Steam)? [y/N] ' LIB32
 echo
 if [[ "$LIB32" =~ ^([yY])$ ]]; then
 	# Uncomment multilib repository to install apps like steam
+	sed -i -z -e 's/#\[multilib\]\n#/\[multilib\]\n/g' /etc/pacman.conf
 	sed -i -z -e 's/#\[multilib\]\n#/\[multilib\]\n/g' /mnt/etc/pacman.conf
 fi
 
@@ -213,17 +216,24 @@ timedatectl set-ntp true
 
 # Add support for swap
 clear
-read -n 1 -rp 'Do you want a swap file? [y/N] ' response
+read -n 1 -rp 'Do you have a swap partition? [y/N] ' response
 echo
-if [[ $response =~ [yY] ]]; then
-	read -rp 'Enter swap size in GB (Ex: 8): ' SWAP_SIZE
-	dd if=/dev/zero of=/mnt/swapfile bs=1M count=${SWAP_SIZE}k status=progress
-	chmod 600 /mnt/swapfile
-	mkswap -U clear /mnt/swapfile
-	swapon /mnt/swapfile
-	# Trust genfstab for now
-	# echo '# /swapfile' >> /etc/fstab
-	# echo '/swapfile none swap defaults 0 0' >> /etc/fstab
+if [[ "$response" =~ ^([yY])$ ]]; then
+  read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
+  echo
+	if [[ "$ENCRYPTION" =~ [yY] ]]; then
+		echo >> /mnt/etc/crypttab
+		echo "swap           $SWAP_PARTITION                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
+		echo '/dev/mapper/swap				none		swap		sw	0 0' >> /mnt/etc/fstab
+	else
+		mkswap -L SWAP "$SWAP_PARTITION"
+		swapUUID=$(blkid -o value -s UUID "$SWAP_PARTITION")
+		{
+		  echo '# Swap partition'
+		  echo "UUID=${swapUUID}	none	swap	sw	0 0"
+      	  echo
+		} >> /mnt/etc/fstab
+  fi
 fi
 
 # Create our fstab so the system can mount stuff properly
