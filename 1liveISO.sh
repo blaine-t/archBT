@@ -70,12 +70,13 @@ fdisk -l "${ROOT_PARTITION}"
 echo
 
 # Set up encryption
+# [Encryption page](https://bcachefs.org/Encryption/)
 read -n 1 -rp 'Do you want to use bcachefs encryption? [y/N] ' ENCRYPTION
 if [[ "$ENCRYPTION" =~ [yY] ]]; then
-	bcache format --encrypted "${ROOT_PARTITION}"
-	bcache unlock "${ROOT_PARTITION}"
+	bcachefs format --encrypted "${ROOT_PARTITION}"
+	bcachefs unlock "${ROOT_PARTITION}"
 else
-	bcache format "${ROOT_PARTITION}"
+	bcachefs format "${ROOT_PARTITION}"
 fi
 
 # Mounts bcachefs partition to /mnt on live ISO
