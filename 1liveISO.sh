@@ -5,7 +5,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Force script PWD to be where the script is located
-cd "${0%/*}" 
+cd ${0%/*}
 
 # Provide recommended settings
 cat << EOF
@@ -55,11 +55,11 @@ echo
 read -n 1 -rp 'IS THIS THE RIGHT BOOT PARTITION TO FORMAT? [y/N] ' response
 echo
 if [[ ${response} =~ [yY] ]]; then
-	# Makes boot file system as FAT32 and confirms that sectors are good to use
+    # Makes boot file system as FAT32 and confirms that sectors are good to use
     mkfs.fat -c -F 32 -n BOOT ${BOOT_PARTITION}
 else
     echo 'Leaving installer, please rerun with correct boot partition.'
-	exit
+    exit
 fi
 
 # Set up root partition
@@ -74,10 +74,10 @@ echo
 read -n 1 -rp 'Do you want to use bcachefs encryption? [y/N] ' ENCRYPTION
 echo
 if [[ ${ENCRYPTION} =~ [yY] ]]; then
-	bcachefs format --encrypted ${ROOT_PARTITION}
-	bcachefs unlock ${ROOT_PARTITION}
+    bcachefs format --encrypted ${ROOT_PARTITION}
+    bcachefs unlock ${ROOT_PARTITION}
 else
-	bcachefs format ${ROOT_PARTITION}
+    bcachefs format ${ROOT_PARTITION}
 fi
 
 # Mounts bcachefs partition to /mnt on live ISO
@@ -96,38 +96,38 @@ echo 'You will be prompted for 3 differnt kernels. You can select any/multiple a
 read -n 1 -rp 'Do you want the linux-lts kernel? [y/N] ' LTS
 echo
 if [[ ${LTS} =~ [yY] ]]; then
-	pacstrap /mnt linux-lts linux-lts-headers
+    pacstrap /mnt linux-lts linux-lts-headers
 fi
 read -n 1 -rp 'Do you want the linux-zen kernel? [y/N] ' ZEN
 echo
 if [[ ${ZEN} =~ [yY] ]]; then
-	pacstrap /mnt linux-zen linux-zen-headers
+    pacstrap /mnt linux-zen linux-zen-headers
 fi
 
 if [[ ! ${LTS} =~ [yY] ]] && [[ ! ${ZEN} =~ [yY] ]]; then
-	echo "Installing Linux kernel since others weren't selected"
-	LINUX=Y
-	pacstrap /mnt linux linux-headers
+    echo "Installing Linux kernel since others weren't selected"
+    LINUX=Y
+    pacstrap /mnt linux linux-headers
 else
-	read -n 1 -rp 'Do you want the linux kernel? [y/N] ' LINUX
-	echo
-	if [[ ${LINUX} =~ [yY] ]]; then
-		pacstrap /mnt linux linux-headers
-	fi
+    read -n 1 -rp 'Do you want the linux kernel? [y/N] ' LINUX
+    echo
+    if [[ ${LINUX} =~ [yY] ]]; then
+        pacstrap /mnt linux linux-headers
+    fi
 fi
 
 # Prompt for doas
 read -n 1 -rp 'Do you want doas to replace sudo? [y/N] ' DOAS
 echo
 if [[ ${DOAS} =~ [yY] ]]; then
-	pacstrap /mnt opendoas
+    pacstrap /mnt opendoas
 fi
 
 # Prompt for secure boot
 read -n 1 -rp 'Do you want secure boot support? [y/N] ' SECURE
 echo
 if [[ ${SECURE} =~ [yY] ]]; then
-	pacstrap /mnt sbctl
+    pacstrap /mnt sbctl
 fi
 
 # Prompt for X11/Wayland
@@ -138,18 +138,18 @@ echo
 read -n 1 -rp 'Do you have an Amd or Intel CPU or Neither? [a/i/N] ' response
 echo
 if [[ ${response} =~ [aA] ]]; then
-	pacstrap /mnt amd-ucode
-elif [[ ${response} =~ [iI] ]]; then
-	pacstrap /mnt intel-ucode
+    pacstrap /mnt amd-ucode
+    elif [[ ${response} =~ [iI] ]]; then
+    pacstrap /mnt intel-ucode
 fi
 
 # Prompt for 32 bit support
 read -n 1 -rp 'Do you want 32-bit support (e.g. Steam)? [y/N] ' LIB32
 echo
 if [[ ${LIB32} =~ [yY] ]]; then
-	# Uncomment multilib repository to install apps like steam
-	sed -i -z -e 's/#\[multilib\]\n#/\[multilib\]\n/g' /etc/pacman.conf
-	sed -i -z -e 's/#\[multilib\]\n#/\[multilib\]\n/g' /mnt/etc/pacman.conf
+    # Uncomment multilib repository to install apps like steam
+    sed -i -z -e 's/#\[multilib\]\n#/\[multilib\]\n/g' /etc/pacman.conf
+    sed -i -z -e 's/#\[multilib\]\n#/\[multilib\]\n/g' /mnt/etc/pacman.conf
 fi
 
 # Prompt for accelerated video decoding
@@ -158,56 +158,56 @@ echo
 read -n 1 -rp 'Do you have an Amd, nVidia or Intel GPU or Neither? [a/v/i/N] ' GPU
 echo
 if [[ ${GPU} =~ [aA] ]];  then
-	# Add DRI driver for 3D acceleration with mesa
-	# Add vulkan support with vulkan-radeon
-	pacstrap /mnt mesa vulkan-radeon
-	
-	# If using X then add 2D acceleration support in xorg
-	if [[ ! ${DISPLAY_SERVER} =~ [wW] ]]; then
-		pacstrap /mnt xf86-video-amdgpu
-	fi
-
-	# If 32 bit support add 32 bit packages
-	if [[ ${LIB32} =~ [yY] ]]; then
-		pacstrap /mnt lib32-mesa lib32-vulkan-radeon
-	fi
-
-	# If accelerated video decoding add packages
-	if [[ ${VACCEL} =~ [yY] ]]; then
-		pacstrap /mnt libva-mesa-driver mesa-vdpau
-		# If 32 bit support also add 32 bit accelerated video decoding
-		if [[ ${LIB32} =~ [yY] ]]; then
-			pacstrap /mnt lib32-libva-mesa-driver lib32-mesa-vdpau
-		fi
-	fi
-
-elif [[ ${GPU} =~ [vV] ]]; then
-	# Install Nvidia-DKMS to have support for all kernels no matter what
-	pacstrap /mnt nvidia-dkms
-
-	# If 32 bit support add 32 bit packages
-	if [[ ${LIB32} =~ [yY] ]]; then
-		pacstrap /mnt lib32-nvidia-utils
-	fi
-	echo 'VA-API support is offered through AUR package that has to be installed in user space'
-	echo 'https://wiki.archlinux.org/title/Hardware_video_acceleration'
-elif [[ ${GPU} =~ [iI] ]]; then
-	# Add DRI driver for 3D acceleration with mesa
-	# Add vulkan support with vulkan-intel
-	pacstrap /mnt mesa vulkan-intel
-	
-	# If using X then add 2D acceleration support in xorg
-	if [[ ! ${DISPLAY_SERVER} =~ [wW] ]]; then
-		pacstrap /mnt xorg-server
-	fi
-
-	# If 32 bit support add 32 bit packages
-	if [[ ${LIB32} =~ [yY] ]]; then
-		pacstrap /mnt lib32-mesa lib32-vulkan-intel
-	fi
-
-	echo 'For video encoding/decoding Intel is a bit picky so follow the arch wiki to add support:'
-	echo 'https://wiki.archlinux.org/title/Hardware_video_acceleration'
+    # Add DRI driver for 3D acceleration with mesa
+    # Add vulkan support with vulkan-radeon
+    pacstrap /mnt mesa vulkan-radeon
+    
+    # If using X then add 2D acceleration support in xorg
+    if [[ ! ${DISPLAY_SERVER} =~ [wW] ]]; then
+        pacstrap /mnt xf86-video-amdgpu
+    fi
+    
+    # If 32 bit support add 32 bit packages
+    if [[ ${LIB32} =~ [yY] ]]; then
+        pacstrap /mnt lib32-mesa lib32-vulkan-radeon
+    fi
+    
+    # If accelerated video decoding add packages
+    if [[ ${VACCEL} =~ [yY] ]]; then
+        pacstrap /mnt libva-mesa-driver mesa-vdpau
+        # If 32 bit support also add 32 bit accelerated video decoding
+        if [[ ${LIB32} =~ [yY] ]]; then
+            pacstrap /mnt lib32-libva-mesa-driver lib32-mesa-vdpau
+        fi
+    fi
+    
+    elif [[ ${GPU} =~ [vV] ]]; then
+    # Install Nvidia-DKMS to have support for all kernels no matter what
+    pacstrap /mnt nvidia-dkms
+    
+    # If 32 bit support add 32 bit packages
+    if [[ ${LIB32} =~ [yY] ]]; then
+        pacstrap /mnt lib32-nvidia-utils
+    fi
+    echo 'VA-API support is offered through AUR package that has to be installed in user space'
+    echo 'https://wiki.archlinux.org/title/Hardware_video_acceleration'
+    elif [[ ${GPU} =~ [iI] ]]; then
+    # Add DRI driver for 3D acceleration with mesa
+    # Add vulkan support with vulkan-intel
+    pacstrap /mnt mesa vulkan-intel
+    
+    # If using X then add 2D acceleration support in xorg
+    if [[ ! ${DISPLAY_SERVER} =~ [wW] ]]; then
+        pacstrap /mnt xorg-server
+    fi
+    
+    # If 32 bit support add 32 bit packages
+    if [[ ${LIB32} =~ [yY] ]]; then
+        pacstrap /mnt lib32-mesa lib32-vulkan-intel
+    fi
+    
+    echo 'For video encoding/decoding Intel is a bit picky so follow the arch wiki to add support:'
+    echo 'https://wiki.archlinux.org/title/Hardware_video_acceleration'
 fi
 
 # Set clock using internet
@@ -218,21 +218,23 @@ clear
 read -n 1 -rp 'Do you have a swap partition? [y/N] ' response
 echo
 if [[ ${response} =~ [yY] ]]; then
-  	read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
-  	echo
-	if [[ ${ENCRYPTION} =~ [yY] ]]; then
-		echo >> /mnt/etc/crypttab
-		echo "swap           ${SWAP_PARTITION}                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
-		echo '/dev/mapper/swap				none		swap		sw	0 0' >> /mnt/etc/fstab
-	else
-		mkswap -L SWAP ${SWAP_PARTITION}
-		swapUUID=$(blkid -o value -s UUID ${SWAP_PARTITION})
-		{
-		  echo '# Swap partition'
-		  echo "UUID=${swapUUID}	none	swap	sw	0 0"
-      	  echo
-		} >> /mnt/etc/fstab
-  fi
+    read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
+    echo
+    if [[ ${ENCRYPTION} =~ [yY] ]]; then
+        # Add cryptsetup to support encrypted swap partition until bcachefs supports swapfile
+        pacstrap /mnt cryptsetup
+        echo >> /mnt/etc/crypttab
+        echo "swap           ${SWAP_PARTITION}                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
+        echo '/dev/mapper/swap				none		swap		sw	0 0' >> /mnt/etc/fstab
+    else
+        mkswap -L SWAP ${SWAP_PARTITION}
+        swapUUID=$(blkid -o value -s UUID ${SWAP_PARTITION})
+        {
+            echo '# Swap partition'
+            echo "UUID=${swapUUID}	none	swap	sw	0 0"
+            echo
+        } >> /mnt/etc/fstab
+    fi
 fi
 
 # Create our fstab so the system can mount stuff properly
