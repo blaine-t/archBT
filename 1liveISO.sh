@@ -219,8 +219,8 @@ clear
 read -n 1 -rp 'Do you have a swap partition? [y/N] ' response
 echo
 if [[ "$response" =~ ^([yY])$ ]]; then
-  read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
-  echo
+  	read -rp 'Enter swap partition (Ex: /dev/sda3 or /dev/nvme0n1p3): ' SWAP_PARTITION
+  	echo
 	if [[ "$ENCRYPTION" =~ [yY] ]]; then
 		echo >> /mnt/etc/crypttab
 		echo "swap           $SWAP_PARTITION                                    /dev/urandom           swap,cipher=aes-xts-plain64,size=512" >> /mnt/etc/crypttab
@@ -241,7 +241,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Copy install script over
 mkdir -p /mnt/archBT
-cp ./* /mnt/archBT
+cp -r ./* /mnt/archBT
 
 # Export variables for other scripts to use
 export USERNAME
