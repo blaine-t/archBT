@@ -4,11 +4,7 @@ ALL_config="/etc/mkinitcpio.conf"
 ALL_kver="/boot/vmlinuz-linux"
 ALL_microcode=(/boot/*-ucode.img)
 
-PRESETS=('default' 'fallback')
+PRESETS=('default')
 
 default_image="/boot/initramfs-linux.img"
 default_uki="/boot/EFI/Linux/linux.efi"
-
-fallback_image="/boot/initramfs-linux-fallback.img"
-fallback_uki="/boot/EFI/Linux/linux-fallback.efi"
-fallback_options="-S autodetect"

@@ -4,11 +4,7 @@ ALL_config="/etc/mkinitcpio.conf"
 ALL_kver="/boot/vmlinuz-linux-zen"
 ALL_microcode=(/boot/*-ucode.img)
 
-PRESETS=('default' 'fallback')
+PRESETS=('default')
 
 default_image="/boot/initramfs-linux-zen.img"
 default_uki="/boot/EFI/Linux/linux-zen.efi"
-
-fallback_image="/boot/initramfs-linux-zen-fallback.img"
-fallback_uki="/boot/EFI/Linux/linux-zen-fallback.efi"
-fallback_options="-S autodetect"

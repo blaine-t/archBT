@@ -108,20 +108,17 @@ while [[ ${boot_entries} -gt 0 ]]; do
     read -n 1 -rp ${query} response
     echo
     if [[ ${response} =~ [xX] ]]; then
-        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
-        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux' --loader 'Linux\linux.efi' --verbose
+        efibootmgr --create --disk ${BOOT_PARTITION} --label 'Linux' --loader 'Linux\linux.efi' --verbose
         # Remove entry from list
         query=${query//"Linu[X], "/ }
         boot_entries=$((boot_entries - 1))
         elif [[ ${response} =~ [lL] ]]; then
-        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts-fallback' --loader 'Linux\linux-lts-fallback.efi' --verbose
-        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
+        efibootmgr --create --disk ${BOOT_PARTITION} --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
         # Remove entry from list
         query=${query//"[L]ts, "/ }
         boot_entries=$((boot_entries - 1))
         elif [[ ${response} =~ [zZ] ]]; then
-        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen-fallback' --loader 'Linux\linux-zen-fallback.efi' --verbose
-        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
+        efibootmgr --create --disk ${BOOT_PARTITION} --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
         # Remove entry from list
         query=${query//"[Z]en, "/ }
         boot_entries=$((boot_entries - 1))
@@ -160,15 +157,12 @@ if [[ ${SECURE} =~ [yY] ]]; then
         fi
     fi
     if [[ ${LINUX} =~ [yY] ]]; then
-        sbctl sign -s /boot/EFI/Linux/linux-fallback.efi
         sbctl sign -s /boot/EFI/Linux/linux.efi
     fi
     if [[ ${LTS} =~ [yY] ]]; then
-        sbctl sign -s /boot/EFI/Linux/linux-lts-fallback.efi
         sbctl sign -s /boot/EFI/Linux/linux-lts.efi
     fi
     if [[ ${ZEN} =~ [yY] ]]; then
-        sbctl sign -s /boot/EFI/Linux/linux-zen-fallback.efi
         sbctl sign -s /boot/EFI/Linux/linux-zen.efi
     fi
     sbctl list-files
