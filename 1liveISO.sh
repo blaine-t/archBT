@@ -89,7 +89,7 @@ mount ${BOOT_PARTITION} /mnt/boot/EFI
 mkdir /mnt/boot/EFI/Linux
 
 # Install "required" packages to new install
-pacstrap /mnt base base-devel linux-firmware efibootmgr networkmanager git nano
+pacstrap /mnt base base-devel linux-firmware bcachefs-tools efibootmgr networkmanager git nano
 
 # Prompt for kernels
 echo 'You will be prompted for 3 differnt kernels. You can select any/multiple as long as you pick at least one. (LTS CURRENTLY DOESNT SUPPORT BCACHEFS)'
