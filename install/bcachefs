@@ -1,7 +1,6 @@
 #!/bin/bash
 
 build() {
-    add_binary bcachefs
     add_runscript
 }
 

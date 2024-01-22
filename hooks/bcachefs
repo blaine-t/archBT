@@ -3,7 +3,6 @@
 run_hook() {
     # check if $root needs unlocking
     if bcachefs unlock -c $root >/dev/null 2>&1; then
-        echo "Unlocking $root:"
         while true; do
             bcachefs unlock $root && break
         done
