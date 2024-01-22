@@ -98,8 +98,6 @@ if [[ ${ZEN} =~ [yY] ]]; then
     boot_entries=$((boot_entries + 1))
     query+="[Z]en, "
 fi
-# Replace trailing comma
-query=${query%, }"? "
 
 # Update amount of boot entries left
 query="${query/[[:digit:]]/$boot_entries}"
@@ -179,7 +177,7 @@ EOF
 
 # Copy archBT over to user and switch to user
 mkdir -p /home/${USERNAME}/archBT
-mv -r ./* /home/${USERNAME}/archBT
+mv ./* /home/${USERNAME}/archBT
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/archBT
 cd /home/${USERNAME}/archBT
 su ${USERNAME}

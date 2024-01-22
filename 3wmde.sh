@@ -2,8 +2,9 @@
 
 echo 'This script will install KDE-Plasma and paru (for phonon-qt5-mpv from the AUR). MUST be run as user.'
 
-# Update pacman cache
-sudo pacman -Syu
+# Update pacman cache and install Rust for paru
+sudo pacman -Syu rustup --noconfirm
+rustup default stable
 
 # Install dependencies for given display server
 if [[ ! ${DISPLAY_SERVER} =~ [xX] ]]; then
@@ -26,7 +27,7 @@ rm -r ~/build/paru
 rm -r ~/build
 
 # Install KDE Plasma minimum with mpv phonon backend and pipewire audio with networkmanager and default file manager and terminal
-sudo pacman -S mpv --no-confirm
+sudo pacman -S mpv --noconfirm
 echo 'Installing phonon-qt5-mpv from the AUR'
 echo "1" | paru phonon-qt5-mpv --skipreview
 sudo pacman -S pipewire-jack wireplumber ttf-bitstream-vera --noconfirm
