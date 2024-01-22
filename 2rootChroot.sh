@@ -13,11 +13,11 @@ ln -sf "/usr/share/zoneinfo/${TIMEZONE}" /etc/localtime
 hwclock --systohc
 
 # Sets locale config to add US locale
-sed -i 's,#en_US.UTF-8,en_US.UTF-8,g' /etc/locale.gen 
+sed -i 's,#en_US.UTF-8,en_US.UTF-8,g' /etc/locale.gen
 locale-gen
 
 # Sets local language to English
-echo 'LANG=en_US.UTF-8' > /etc/locale.conf 
+echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 
 # Prompts for hostname
 read -rp 'Hostname: ' HOSTNAME
@@ -44,23 +44,23 @@ sed -i "s,PKGEXT='.pkg.tar.zst',PKGEXT='.pkg.tar',g" /etc/makepkg.conf
 
 # Creates the userspace user with a password and adds them to appropriate groups
 read -rp 'Enter username: ' USERNAME
-useradd ${USERNAME}
+useradd -m ${USERNAME}
 usermod -aG wheel,audio,video,optical,storage ${USERNAME}
 echo "Set the user's"
 passwd ${USERNAME}
 
 # Setup doas (a sudo replacement if user wanted)
 if [[ ${DOAS} =~ [yY] ]]; then
-  echo 'Cannot remove sudo since dependency of base-devel. If you want to delete create a pseudo package'
-  # Allows users in wheel group to execute doas
-  echo 'permit persist setenv { XAUTHORITY LANG LC_ALL } :wheel' > /etc/doas.conf
-  # Fix paru and other application issues and allows for user to type sudo instaed of doas and still works
-  # ln -s /bin/doas /bin/sudo (Do this if you remove sudo)
-  echo >> /etc/bash.bashrc
-  # Allows for proper autocomplete of doas
-  echo 'complete -cf doas' >> /etc/bash.bashrc
+    echo 'Cannot remove sudo since dependency of base-devel. If you want to delete create a pseudo package'
+    # Allows users in wheel group to execute doas
+    echo 'permit persist setenv { XAUTHORITY LANG LC_ALL } :wheel' > /etc/doas.conf
+    # Fix paru and other application issues and allows for user to type sudo instaed of doas and still works
+    # ln -s /bin/doas /bin/sudo (Do this if you remove sudo)
+    echo >> /etc/bash.bashrc
+    # Allows for proper autocomplete of doas
+    echo 'complete -cf doas' >> /etc/bash.bashrc
 else
-  echo '%wheel      ALL=(ALL:ALL) ALL' >> /etc/sudoers
+    echo '%wheel      ALL=(ALL:ALL) ALL' >> /etc/sudoers
 fi
 
 # Enable network control on boot
@@ -68,7 +68,7 @@ systemctl enable NetworkManager
 
 # Add in mkinitcpio hooks for unlocking the root partition
 if [[ ${ENCRYPTION} =~ [yY] ]]; then
-  sed -i 's/consolefont block filesystems/consolefont block filesystems bcachefs/g' /etc/mkinitcpio.conf
+    sed -i 's/consolefont block filesystems/consolefont block filesystems bcachefs/g' /etc/mkinitcpio.conf
 fi
 
 # Set cmdline parameters for kernel
@@ -81,22 +81,22 @@ echo "root=PARTUUID=${PRUUID} rw quiet bgrt_disable nmi_watchdog=0 acpi_osi=\"Wi
 boot_entries=0
 query='Which entry should be in the 0 position in order '
 if [[ ${LINUX} =~ [yY] ]]; then
-  rm /etc/mkinitcpio.d/linux.preset
-  cp ./linux.preset /etc/mkinitcpio.d/
-  boot_entries=$((boot_entries + 1))
-  query+="linu[X], "
+    rm /etc/mkinitcpio.d/linux.preset
+    cp ./linux.preset /etc/mkinitcpio.d/
+    boot_entries=$((boot_entries + 1))
+    query+="linu[X], "
 fi
 if [[ ${LTS} =~ [yY] ]]; then
-  rm /etc/mkinitcpio.d/linux-lts.preset
-  cp ./linux-lts.preset /etc/mkinitcpio.d/
-  boot_entries=$((boot_entries + 1))
-  query+="[L]ts, "
+    rm /etc/mkinitcpio.d/linux-lts.preset
+    cp ./linux-lts.preset /etc/mkinitcpio.d/
+    boot_entries=$((boot_entries + 1))
+    query+="[L]ts, "
 fi
 if [[ ${ZEN} =~ [yY] ]]; then
-  rm /etc/mkinitcpio.d/linux-zen.preset
-  cp ./linux-zen.preset /etc/mkinitcpio.d/
-  boot_entries=$((boot_entries + 1))
-  query+="[Z]en, "
+    rm /etc/mkinitcpio.d/linux-zen.preset
+    cp ./linux-zen.preset /etc/mkinitcpio.d/
+    boot_entries=$((boot_entries + 1))
+    query+="[Z]en, "
 fi
 # Replace trailing comma
 query=${query%, }"? "
@@ -105,59 +105,70 @@ query=${query%, }"? "
 query="${query/[[:digit:]]/$boot_entries}"
 
 while [[ ${boot_entries} -gt 0 ]]; do
-  read -n 1 -rp ${query} response
-  echo
-  if [[ ${response} =~ [xX] ]]; then
-    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
-    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux' --loader 'Linux\linux.efi' --verbose
-    # Remove entry from list
-    query=${query//"Linu[X], "/ }
-    boot_entries=$((boot_entries - 1))
-  elif [[ ${response} =~ [lL] ]]; then
-    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts-fallback' --loader 'Linux\linux-lts-fallback.efi' --verbose
-    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
-    # Remove entry from list
-    query=${query//"[L]ts, "/ }
-    boot_entries=$((boot_entries - 1))
-  elif [[ ${response} =~ [zZ] ]]; then
-    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen-fallback' --loader 'Linux\linux-zen-fallback.efi' --verbose
-    efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
-    # Remove entry from list
-    query=${query//"[Z]en, "/ }
-    boot_entries=$((boot_entries - 1))
-  fi
-  # Update amount of boot entries left
-  query="${query/[[:digit:]]/${boot_entries}}"
+    read -n 1 -rp ${query} response
+    echo
+    if [[ ${response} =~ [xX] ]]; then
+        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
+        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux' --loader 'Linux\linux.efi' --verbose
+        # Remove entry from list
+        query=${query//"Linu[X], "/ }
+        boot_entries=$((boot_entries - 1))
+        elif [[ ${response} =~ [lL] ]]; then
+        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts-fallback' --loader 'Linux\linux-lts-fallback.efi' --verbose
+        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
+        # Remove entry from list
+        query=${query//"[L]ts, "/ }
+        boot_entries=$((boot_entries - 1))
+        elif [[ ${response} =~ [zZ] ]]; then
+        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen-fallback' --loader 'Linux\linux-zen-fallback.efi' --verbose
+        efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
+        # Remove entry from list
+        query=${query//"[Z]en, "/ }
+        boot_entries=$((boot_entries - 1))
+    fi
+    # Update amount of boot entries left
+    query="${query/[[:digit:]]/${boot_entries}}"
 done
+
+# Copy over bcachefs hook and install
+cp hooks/bcachefs /etc/initcpio/hooks/
+cp install/bcachefs /etc/initcpio/install/
 
 # Regenerate the initramfs
 mkinitcpio -P
 
 # Setup secure boot
 if [[ ${SECURE} =~ [yY] ]]; then
-  sbctl create-keys
-  if [[ ${GPU} =~ [vV] ]]; then
-    # Since NVIDIA is a pain we have to use microsoft keys
-    # https://www.youtube.com/watch?v=iYWzMvlj2RQ
-    sbctl enroll-keys --microsoft
-  else
-    # For other GPUs we can use our custom ones most of the time
-    sbctl enroll-keys
-  fi
-  if [[ ${LINUX} =~ [yY] ]]; then
-    sbctl sign -s /boot/EFI/Linux/linux-fallback.efi
-    sbctl sign -s /boot/EFI/Linux/linux.efi
-  fi
-  if [[ ${LTS} =~ [yY] ]]; then
-    sbctl sign -s /boot/EFI/Linux/linux-lts-fallback.efi
-    sbctl sign -s /boot/EFI/Linux/linux-lts.efi
-  fi
-  if [[ ${ZEN} =~ [yY] ]]; then
-    sbctl sign -s /boot/EFI/Linux/linux-zen-fallback.efi
-    sbctl sign -s /boot/EFI/Linux/linux-zen.efi
-  fi
-  sbctl list-files
-  sbctl status
+    sbctl create-keys
+    if [[ ${GPU} =~ [vV] ]]; then
+        # Since NVIDIA is a pain we have to use microsoft keys
+        # https://www.youtube.com/watch?v=iYWzMvlj2RQ
+        sbctl enroll-keys --microsoft
+        elif (! sbctl enroll-keys); then
+        # For other GPUs we can use our custom ones most of the time
+        echo 'Failed to enroll keys.'
+        read -n 1 -rp 'USE MICROSOFT KEYS? [y/N] ' response
+        echo
+        if [[ ${response} =~ [yY] ]]; then
+            sbctl enroll-keys --microsoft
+        else
+            echo 'Skipping secure boot setup.'
+        fi
+    fi
+    if [[ ${LINUX} =~ [yY] ]]; then
+        sbctl sign -s /boot/EFI/Linux/linux-fallback.efi
+        sbctl sign -s /boot/EFI/Linux/linux.efi
+    fi
+    if [[ ${LTS} =~ [yY] ]]; then
+        sbctl sign -s /boot/EFI/Linux/linux-lts-fallback.efi
+        sbctl sign -s /boot/EFI/Linux/linux-lts.efi
+    fi
+    if [[ ${ZEN} =~ [yY] ]]; then
+        sbctl sign -s /boot/EFI/Linux/linux-zen-fallback.efi
+        sbctl sign -s /boot/EFI/Linux/linux-zen.efi
+    fi
+    sbctl list-files
+    sbctl status
 fi
 
 echo
