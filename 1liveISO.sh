@@ -196,7 +196,7 @@ if [[ ${GPU} =~ [aA] ]];  then
     elif [[ ${GPU} =~ [iI] ]]; then
     # Add DRI driver for 3D acceleration with mesa
     # Add vulkan support with vulkan-intel
-    pacstrap /mnt mesa vulkan-intel
+    pacstrap /mnt mesa vulkan-intel intel-media-driver libvdpau-va-gl intel-gpu-tools
     
     # If using X then add 2D acceleration support in xorg
     if [[ ! ${DISPLAY_SERVER} =~ [wW] ]]; then
