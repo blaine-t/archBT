@@ -72,8 +72,7 @@ if [[ ${ENCRYPTION} =~ [yY] ]]; then
 fi
 
 # Set cmdline parameters for kernel
-PRUUID=$(blkid -s PARTUUID -o value ${ROOT_PARTITION})
-echo "root=PARTUUID=${PRUUID} rw quiet bgrt_disable nmi_watchdog=0 acpi_osi=\"Windows 2015\" acpi_osi=! pcie_aspm=force pcie_aspm.policy=powersupersave drm.vblankoffdelay=1" > /etc/kernel/cmdline
+echo "root=${ROOT_PARTITION} rw quiet bgrt_disable nmi_watchdog=0 acpi_osi=\"Windows 2015\" acpi_osi=! pcie_aspm=force pcie_aspm.policy=powersupersave drm.vblankoffdelay=1" > /etc/kernel/cmdline
 
 # Add boot entries for standard linux and the fallback image
 # AND
