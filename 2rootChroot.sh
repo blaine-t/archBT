@@ -4,11 +4,12 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-cd "${0%/*}" # Forces script to be in same directory as linux.presets
+# Forces script to be in same directory as linux.presets
+cd ${0%/*}
 
 # Sets the local time
 read -rp 'Enter timezone for system (Ex: America/Chicago): ' TIMEZONE
-ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+ln -sf "/usr/share/zoneinfo/${TIMEZONE}" /etc/localtime
 hwclock --systohc
 
 # Sets locale config to add US locale
@@ -18,53 +19,44 @@ locale-gen
 # Sets local language to English
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf 
 
-# Prompts for hostname and shows username
-USER=$(ls /home*/)
+# Prompts for hostname
 read -rp 'Hostname: ' HOSTNAME
 
 # Sets up hostname and hosts file
-echo "$HOSTNAME" > /etc/hostname
-{
-  echo '# Static table lookup for hostnames'
-  echo '# See hosts(5) for details.'
-  echo ''
-  echo '# IPv4'
-  echo '127.0.0.1   localhost'
-  echo "127.0.1.1   $HOSTNAME"
-  echo ''
-  echo '# IPv6'
-  echo '::1             localhost ip6-localhost ip6-loopback'
-  echo 'ff02::1         ip6-allnodes'
-  echo 'ff02::2         ip6-allrouters'
-} >> /etc/hosts
-# Adds btrfs and btrfs recovery support to mkinitcpio hooks
-sed -i 's,MODULES=(),MODULES=(btrfs),g' /etc/mkinitcpio.conf 
-sed -i 's,BINARIES=(),BINARIES=(btrfs),g' /etc/mkinitcpio.conf
+echo ${HOSTNAME} > /etc/hostname
+cat << EOF >> /etc/hosts
+# Static table lookup for hostnames
+# See hosts(5) for details.
 
-# If user selected encryption then add the hook
-if [[ "$ENCRYPTION" =~ [yY] ]]; then
-  sed -i 's,block filesystems keyboard,block encrypt filesystems keyboard,g' /etc/mkinitcpio.conf 
-fi
+# IPv4
+127.0.0.1   localhost
+127.0.1.1   ${HOSTNAME}
+
+# IPv6
+::1             localhost ip6-localhost ip6-loopback
+ff02::1         ip6-allnodes
+ff02::2         ip6-allrouters
+EOF
 
 # Speedup compiling for makepkg: https://gist.github.com/frandieguez/0b13bd58148679aa9955
 sed -i 's,#MAKEFLAGS="-j2",MAKEFLAGS="-j$(nproc)",g' /etc/makepkg.conf
 sed -i "s,PKGEXT='.pkg.tar.zst',PKGEXT='.pkg.tar',g" /etc/makepkg.conf
 
 # Creates the userspace user with a password and adds them to appropriate groups
-useradd "${USERNAME}"
-usermod -aG wheel,audio,video,optical,storage "${USERNAME}"
-chown "${USERNAME}":"${USERNAME}" -R "/home/${USERNAME}"
-echo 'Set the user'
-passwd "${USERNAME}"
+read -rp 'Enter username: ' USERNAME
+useradd ${USERNAME}
+usermod -aG wheel,audio,video,optical,storage ${USERNAME}
+echo "Set the user's"
+passwd ${USERNAME}
 
 # Setup doas (a sudo replacement if user wanted)
-if [[ "$DOAS" =~ [yY] ]]; then
+if [[ ${DOAS} =~ [yY] ]]; then
   echo 'Cannot remove sudo since dependency of base-devel. If you want to delete create a pseudo package'
   # Allows users in wheel group to execute doas
   echo 'permit persist setenv { XAUTHORITY LANG LC_ALL } :wheel' > /etc/doas.conf
   # Fix paru and other application issues and allows for user to type sudo instaed of doas and still works
   # ln -s /bin/doas /bin/sudo (Do this if you remove sudo)
-  echo '' >> /etc/bash.bashrc
+  echo >> /etc/bash.bashrc
   # Allows for proper autocomplete of doas
   echo 'complete -cf doas' >> /etc/bash.bashrc
 else
@@ -74,35 +66,33 @@ fi
 # Enable network control on boot
 systemctl enable NetworkManager
 
-# Setup boot "manager"
-# Grab the UUID of encrypted and decrypted root partition and use it in kernel parameters for boot [Reddit Post](https://www.reddit.com/r/archlinux/comments/m4aa0u/luks_encryption_with_efistub_boot/)
-if [[ "$ENCRYPTION" =~ [yY] ]]; then
-  EUUID=$(blkid -s UUID -o value "${ORIGINAL_ROOT_PARTITION}")
-  RUUID=$(blkid -s UUID -o value /dev/mapper/root)
-  echo "cryptdevice=UUID=$EUUID:root:allow-discards root=UUID=$RUUID rw rootflags=subvol=@ quiet bgrt_disable" > /etc/kernel/cmdline
-else
-  PRUUID=$(blkid -s PARTUUID -o value "${ROOT_PARTITION}")
-  echo "root=PARTUUID=${PRUUID} rw rootflags=subvol=@ quiet bgrt_disable" > /etc/kernel/cmdline
+# Add in mkinitcpio hooks for unlocking the root partition
+if [[ ${ENCRYPTION} =~ [yY] ]]; then
+  sed -i 's/consolefont block filesystems/consolefont block filesystems bcachefs/g' /etc/mkinitcpio.conf
 fi
+
+# Set cmdline parameters for kernel
+PRUUID=$(blkid -s PARTUUID -o value ${ROOT_PARTITION})
+echo "root=PARTUUID=${PRUUID} rw quiet bgrt_disable nmi_watchdog=0 acpi_osi=\"Windows 2015\" acpi_osi=! pcie_aspm=force pcie_aspm.policy=powersupersave drm.vblankoffdelay=1" > /etc/kernel/cmdline
 
 # Add boot entries for standard linux and the fallback image
 # AND
 # Replace the default linux Unified Kernel Config with our new one
 boot_entries=0
 query='Which entry should be in the 0 position in order '
-if [[ "$LINUX" =~ [yY] ]]; then
+if [[ ${LINUX} =~ [yY] ]]; then
   rm /etc/mkinitcpio.d/linux.preset
   cp ./linux.preset /etc/mkinitcpio.d/
   boot_entries=$((boot_entries + 1))
   query+="linu[X], "
 fi
-if [[ "$LTS" =~ [yY] ]]; then
+if [[ ${LTS} =~ [yY] ]]; then
   rm /etc/mkinitcpio.d/linux-lts.preset
   cp ./linux-lts.preset /etc/mkinitcpio.d/
   boot_entries=$((boot_entries + 1))
   query+="[L]ts, "
 fi
-if [[ "$ZEN" =~ [yY] ]]; then
+if [[ ${ZEN} =~ [yY] ]]; then
   rm /etc/mkinitcpio.d/linux-zen.preset
   cp ./linux-zen.preset /etc/mkinitcpio.d/
   boot_entries=$((boot_entries + 1))
@@ -114,22 +104,22 @@ query=${query%, }"? "
 # Update amount of boot entries left
 query="${query/[[:digit:]]/$boot_entries}"
 
-while [[ "${boot_entries}" -gt 0 ]]; do
-  read -n 1 -rp "${query}" response
-  echo ''
-  if [[ "$response" =~ [xX] ]]; then
+while [[ ${boot_entries} -gt 0 ]]; do
+  read -n 1 -rp ${query} response
+  echo
+  if [[ ${response} =~ [xX] ]]; then
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-fallback' --loader 'Linux\linux-fallback.efi' --verbose
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux' --loader 'Linux\linux.efi' --verbose
     # Remove entry from list
     query=${query//"Linu[X], "/ }
     boot_entries=$((boot_entries - 1))
-  elif [[ "$response" =~ [lL] ]]; then
+  elif [[ ${response} =~ [lL] ]]; then
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts-fallback' --loader 'Linux\linux-lts-fallback.efi' --verbose
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
     # Remove entry from list
     query=${query//"[L]ts, "/ }
     boot_entries=$((boot_entries - 1))
-  elif [[ "$response" =~ [zZ] ]]; then
+  elif [[ ${response} =~ [zZ] ]]; then
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen-fallback' --loader 'Linux\linux-zen-fallback.efi' --verbose
     efibootmgr --create --disk "${BOOT_PARTITION}" --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
     # Remove entry from list
@@ -137,31 +127,32 @@ while [[ "${boot_entries}" -gt 0 ]]; do
     boot_entries=$((boot_entries - 1))
   fi
   # Update amount of boot entries left
-  query="${query/[[:digit:]]/$boot_entries}"
+  query="${query/[[:digit:]]/${boot_entries}}"
 done
 
 # Regenerate the initramfs
 mkinitcpio -P
 
 # Setup secure boot
-if [[ "$SECURE" =~ [yY] ]]; then
+if [[ ${SECURE} =~ [yY] ]]; then
   sbctl create-keys
-  if [[ "$GPU" =~ ^([vV])$ ]]; then
+  if [[ ${GPU} =~ [vV] ]]; then
     # Since NVIDIA is a pain we have to use microsoft keys
+    # https://www.youtube.com/watch?v=iYWzMvlj2RQ
     sbctl enroll-keys --microsoft
   else
     # For other GPUs we can use our custom ones most of the time
     sbctl enroll-keys
   fi
-  if [[ "$LINUX" =~ [yY] ]]; then
+  if [[ ${LINUX} =~ [yY] ]]; then
     sbctl sign -s /boot/EFI/Linux/linux-fallback.efi
     sbctl sign -s /boot/EFI/Linux/linux.efi
   fi
-  if [[ "$LTS" =~ [yY] ]]; then
+  if [[ ${LTS} =~ [yY] ]]; then
     sbctl sign -s /boot/EFI/Linux/linux-lts-fallback.efi
     sbctl sign -s /boot/EFI/Linux/linux-lts.efi
   fi
-  if [[ "$ZEN" =~ [yY] ]]; then
+  if [[ ${ZEN} =~ [yY] ]]; then
     sbctl sign -s /boot/EFI/Linux/linux-zen-fallback.efi
     sbctl sign -s /boot/EFI/Linux/linux-zen.efi
   fi
@@ -169,6 +160,6 @@ if [[ "$SECURE" =~ [yY] ]]; then
   sbctl status
 fi
 
-echo ''
+echo
 echo 'If you messed up your user password now is the time to fix that.'
 echo 'Otherwise you can just Ctrl+D reboot or chmod +x and run 3wmde.sh to install a minimal KDE Plasma Desktop install'
