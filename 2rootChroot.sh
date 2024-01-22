@@ -82,19 +82,19 @@ boot_entries=0
 query='Which entry should be in the 0 position in order '
 if [[ ${LINUX} =~ [yY] ]]; then
     rm /etc/mkinitcpio.d/linux.preset
-    cp ./linux.preset /etc/mkinitcpio.d/
+    cp presets/linux.preset /etc/mkinitcpio.d/
     boot_entries=$((boot_entries + 1))
     query+="linu[X], "
 fi
 if [[ ${LTS} =~ [yY] ]]; then
     rm /etc/mkinitcpio.d/linux-lts.preset
-    cp ./linux-lts.preset /etc/mkinitcpio.d/
+    cp presets/linux-lts.preset /etc/mkinitcpio.d/
     boot_entries=$((boot_entries + 1))
     query+="[L]ts, "
 fi
 if [[ ${ZEN} =~ [yY] ]]; then
     rm /etc/mkinitcpio.d/linux-zen.preset
-    cp ./linux-zen.preset /etc/mkinitcpio.d/
+    cp presets/linux-zen.preset /etc/mkinitcpio.d/
     boot_entries=$((boot_entries + 1))
     query+="[Z]en, "
 fi
