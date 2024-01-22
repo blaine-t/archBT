@@ -139,17 +139,21 @@ mkinitcpio -P
 # Setup secure boot
 if [[ ${SECURE} =~ [yY] ]]; then
     sbctl create-keys
-    if [[ ${GPU} =~ [vV] ]]; then
-        # Since NVIDIA is a pain we have to use microsoft keys
+    if (! sbctl enroll-keys); then
+        # Since NVIDIA is a pain we have to use Microsoft keys
         # https://www.youtube.com/watch?v=iYWzMvlj2RQ
-        sbctl enroll-keys --microsoft
-        elif (! sbctl enroll-keys); then
         # For other GPUs we can use our custom ones most of the time
         echo 'Failed to enroll keys.'
+        echo 'If you have an NVIDIA GPU you will need to use Microsoft keys.'
+        echo 'Other system configs also only work with Microsoft keys.'
         read -n 1 -rp 'USE MICROSOFT KEYS? [y/N] ' response
         echo
         if [[ ${response} =~ [yY] ]]; then
-            sbctl enroll-keys --microsoft
+            if (! sbctl enroll-keys --microsoft); then
+                echo 'Failed to enroll keys.'
+                echo 'Skipping secure boot setup.'
+                echo "Perhaps you weren't in setup mode?"
+            fi
         else
             echo 'Skipping secure boot setup.'
         fi
