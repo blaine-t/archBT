@@ -169,6 +169,17 @@ if [[ ${SECURE} =~ [yY] ]]; then
     sbctl status
 fi
 
-echo
-echo 'If you messed up your user password now is the time to fix that.'
-echo 'Otherwise you can just Ctrl+D reboot or chmod +x and run 3wmde.sh to install a minimal KDE Plasma Desktop install'
+cat << EOF
+
+If you messed up your user password now is the time to fix that.
+Otherwise you can just Ctrl+D reboot or chmod +x and run 3wmde.sh to install a minimal KDE Plasma Desktop install.
+Switching to user...
+
+EOF
+
+# Copy archBT over to user and switch to user
+mkdir -p /home/${USERNAME}/archBT
+mv -r ./* /home/${USERNAME}/archBT
+chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/archBT
+cd /home/${USERNAME}/archBT
+su ${USERNAME}
