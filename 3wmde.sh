@@ -22,9 +22,8 @@ mkdir build
 cd build
 git clone https://aur.archlinux.org/paru.git
 cd paru
-makepkg -si
-rm -r ~/build/paru
-rm -r ~/build
+makepkg -si --noconfirm
+rm -rf ~/build
 
 # Install KDE Plasma minimum with mpv phonon backend and pipewire audio with networkmanager and default file manager and terminal
 sudo pacman -S mpv --noconfirm

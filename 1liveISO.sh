@@ -19,7 +19,6 @@ BIOS PASSWORD: ENABLED
 USB BOOT: ENABLED (DISABLED AFTER INSTALL)
 
 EOF
-sleep 1
 
 # Check internet connection
 echo -e 'Testing network connection and resolution with ping to Archlinux.org\n'
@@ -27,7 +26,6 @@ until ping -c1 www.archlinux.org >/dev/null 2>&1; do :; done
 
 # Gather environment variables for use in install
 read -rp 'Enter installation drive (Ex: /dev/sda or /dev/nvme0n1): ' INSTALL_DRIVE
-sleep 1
 
 # Set up partitioning
 cat << EOF
@@ -89,7 +87,7 @@ mount ${BOOT_PARTITION} /mnt/boot/EFI
 mkdir /mnt/boot/EFI/Linux
 
 # Install "required" packages to new install
-pacstrap /mnt base base-devel linux-firmware bcachefs-tools efibootmgr networkmanager git nano
+pacstrap /mnt base base-devel linux-firmware mkinitcpio bcachefs-tools efibootmgr networkmanager git nano
 
 # Prompt for kernels
 echo 'You will be prompted for 3 differnt kernels. You can select any/multiple as long as you pick at least one. (LTS CURRENTLY DOESNT SUPPORT BCACHEFS)'
