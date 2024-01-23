@@ -124,7 +124,7 @@ volta install typescript
 sudo pacman -S python-pip --noconfirm
 
 # Java setup
-sudo pacman -S jdk-openjdk jre-openjdk jre-openjdk-headless --noconfirm
+sudo pacman -S jdk-openjdk --noconfirm
 echo '1' | paru eclipse-java --skipreview --noconfirm
 # Fix font aliasing in GTK apps (needs relogin)
 sudo pacman -S xdg-desktop-portal-gtk --noconfirm
@@ -154,7 +154,7 @@ source ~/.profile
 # libvirt install
 # Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
 yes | sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm
-sudo usermod -aG libvirt $USER
+sudo usermod -aG libvirt ${USER}
 
 sudo sed -i 's/#unix_sock_group/unix_sock_group/g' /etc/libvirt/libvirtd.conf
 sudo sed -i 's/#unix_sock_rw/unix_sock_rw/g' /etc/libvirt/libvirtd.conf
