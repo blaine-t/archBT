@@ -164,7 +164,7 @@ fi
 cat << EOF
 
 If you messed up your user password now is the time to fix that.
-Otherwise you can just Ctrl+D reboot or chmod +x and run 3wmde.sh to install a minimal KDE Plasma Desktop install.
+Otherwise you can just Ctrl+D reboot or chmod +x and run 3_wmde.sh to install a minimal KDE Plasma Desktop install.
 Switching to user...
 
 EOF

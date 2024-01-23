@@ -259,5 +259,5 @@ export DISPLAY_SERVER
 export GPU
 
 # Changes into root on the new filesystem
-echo 'CD to /archBT and run 2rootChroot.sh'
+echo 'cd to /archBT and run 2_rootChroot.sh'
 arch-chroot /mnt

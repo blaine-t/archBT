@@ -64,7 +64,7 @@ sudo systemctl enable --now bluetooth
 
 # Yubico authenticator install
 echo '1' | paru yubico-authenticator-bin --skipreview --noconfirm
-sudo pacman -S pcsclite --noconfirm # TODO: FIX
+sudo pacman -S pcsclite --noconfirm
 sudo systemctl enable --now pcscd
 
 # Discord install
@@ -145,7 +145,7 @@ EOF
 # Syu because just added chaotic-aur
 sudo pacman -Syu libva-utils vdpauinfo --noconfirm
 echo '1' | paru chromium-wayland-vaapi --skipreview --noconfirm
-cp desktops/chrominum.desktop ~/.local/share/applications
+cp desktops/chromium.desktop ~/.local/share/applications
 # Intel only
 echo "export VDPAU_DRIVER=va_gl" >> ~/.profile
 echo "export LIBVA_DRIVER_NAME=iHD" >> ~/.profile
