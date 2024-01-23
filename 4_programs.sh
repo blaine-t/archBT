@@ -153,7 +153,7 @@ source ~/.profile
 
 # libvirt install
 # Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
-sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm --noconfirm
+yes | sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm --noconfirm
 sudo usermod -aG libvirt $USER
 
 sudo sed -i 's/#unix_sock_group/unix_sock_group/g' /etc/libvirt/libvirtd.conf
