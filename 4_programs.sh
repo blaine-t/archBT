@@ -153,12 +153,12 @@ source ~/.profile
 
 # libvirt install
 # Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
-yes | sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm --noconfirm
+yes | sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm
 sudo usermod -aG libvirt $USER
 
 sudo sed -i 's/#unix_sock_group/unix_sock_group/g' /etc/libvirt/libvirtd.conf
 sudo sed -i 's/#unix_sock_rw/unix_sock_rw/g' /etc/libvirt/libvirtd.conf
-sudo sed -i "s/#user = \"@QEMU_USER@\"/user = \"${USER}\"/g" /etc/libvirt/qemu.conf
-sudo sed -i 's/#group = \"@QEMU_GROUP@\"/group = "libvirt"/g' /etc/libvirt/qemu.conf
+sudo sed -i "s/#user = \"libvirt-qemu\"/user = \"${USER}\"/g" /etc/libvirt/qemu.conf
+sudo sed -i "s/#group = \"libvirt-qemu\"/group = \"${USER}\"/g" /etc/libvirt/qemu.conf
 
 echo 'In virt-manager you can remove the system QEMU connection and add a User Session QEMU connections'
