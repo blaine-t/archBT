@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Bash Strict Mode [aaron maxwell](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+set -euo pipefail
+IFS=$'\n\t'
+
+# Force script PWD to be where the script is located up a directory
+cd ${0%/*}
+cd ..
+
 echo 'This script will install KDE-Plasma and paru (for phonon-qt5-mpv from the AUR). MUST be run as user.'
 
 # Update pacman cache and install Rust for paru

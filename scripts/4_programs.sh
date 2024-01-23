@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Bash Strict Mode [aaron maxwell](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+set -euo pipefail
+IFS=$'\n\t'
+
+# Force script PWD to be where the script is located up a directory
+cd ${0%/*}
+cd ..
+
 cat << EOF
 This script is used to install programs for after install
 This is customized to my LG Gram 15Z90Q-P.AAC6U1 with an i5-1240p running Wayland

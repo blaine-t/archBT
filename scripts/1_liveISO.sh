@@ -4,8 +4,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Force script PWD to be where the script is located
+# Force script PWD to be where the script is located up a directory
 cd ${0%/*}
+cd ..
 
 # Provide recommended settings
 cat << EOF
