@@ -83,19 +83,19 @@ boot_entries=0
 query='Which entry should be in the 0 position in order '
 if [[ ${LINUX} =~ [yY] ]]; then
     boot_entries=$((boot_entries + 1))
-    query+="linu[X], "
+    query+='Linu[X], '
 fi
 if [[ ${LTS} =~ [yY] ]]; then
     boot_entries=$((boot_entries + 1))
-    query+="[L]ts, "
+    query+='[L]ts, '
 fi
 if [[ ${ZEN} =~ [yY] ]]; then
     boot_entries=$((boot_entries + 1))
-    query+="[Z]en, "
+    query+='[Z]en, '
 fi
 
 # Update amount of boot entries left
-query="${query/[[:digit:]]/$boot_entries}"
+query="${query/[[:digit:]]/${boot_entries}}"
 
 while [[ ${boot_entries} -gt 0 ]]; do
     read -n 1 -rp ${query} response
@@ -103,17 +103,17 @@ while [[ ${boot_entries} -gt 0 ]]; do
     if [[ ${response} =~ [xX] ]]; then
         efibootmgr --create --disk ${BOOT_PARTITION} --label 'Linux' --loader 'Linux\linux.efi' --verbose
         # Remove entry from list
-        query=${query//"Linu[X], "/ }
+        query=${query//'Linu[X], '/ }
         boot_entries=$((boot_entries - 1))
         elif [[ ${response} =~ [lL] ]]; then
         efibootmgr --create --disk ${BOOT_PARTITION} --label 'Linux-lts' --loader 'Linux\linux-lts.efi' --verbose
         # Remove entry from list
-        query=${query//"[L]ts, "/ }
+        query=${query//'[L]ts, '/ }
         boot_entries=$((boot_entries - 1))
         elif [[ ${response} =~ [zZ] ]]; then
         efibootmgr --create --disk ${BOOT_PARTITION} --label 'Linux-zen' --loader 'Linux\linux-zen.efi' --verbose
         # Remove entry from list
-        query=${query//"[Z]en, "/ }
+        query=${query//'[Z]en, '/ }
         boot_entries=$((boot_entries - 1))
     fi
     # Update amount of boot entries left

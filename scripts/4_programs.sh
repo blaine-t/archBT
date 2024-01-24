@@ -35,12 +35,19 @@ git config --global commit.gpgsign true
 paru -Syu --noconfirm
 
 # Oh my bash install
-echo '1' | paru oh-my-bash-git --skipreview --noconfirm
+echo '1' | paru -a oh-my-bash-git --skipreview --noconfirm
 cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
 
 # Install Firefox
 sudo pacman -S firefox plasma-browser-integration --noconfirm
-echo "export MOZ_ENABLE_WAYLAND=1" >> ~/.profile
+# Extensions
+sudo pacman -S firefox-extension-ublock-origin firefox-decentraleyes firefox-dark-reader --noconfirm
+echo 'export MOZ_ENABLE_WAYLAND=1' >> ~/.profile
+# Firefox config changes:
+# widget.use-xdg-desktop-portal.mime-handler = 1
+# widget.use-xdg-desktop-portal.file-pickers = 1
+# media.hardwaremediakeys.enabled = false
+# browser.quitShortcut.disabled = true
 
 # KDE Plasma Intel audio fix
 sudo cp config/audiofix.conf /etc/modprobe.d/audiofix.conf
@@ -55,11 +62,12 @@ sudo pacman -S kinfocenter --noconfirm
 
 # Portal setup for dolphin in every file picker
 sudo pacman -S xdg-desktop-portal xdg-desktop-portal-kde --noconfirm
-echo "export GTK_USE_PORTAL=1" >> ~/.profile
+echo 'export GTK_USE_PORTAL=1' >> ~/.profile
+echo 'export XDG_CURRENT_DESKTOP=KDE' >> ~/.profile
 
 # Install Obsidian
 sudo pacman -S obsidian --noconfirm
-echo "export OBSIDIAN_USE_WAYLAND=1" >> ~/.profile
+echo 'export OBSIDIAN_USE_WAYLAND=1' >> ~/.profile
 
 # Chrony setup
 sudo pacman -S chrony --noconfirm
@@ -71,16 +79,15 @@ sudo pacman -S bluez bluez-utils bluedevil --noconfirm
 sudo systemctl enable --now bluetooth
 
 # Yubico authenticator install
-echo '1' | paru yubico-authenticator-bin --skipreview --noconfirm
+echo '1' | paru -a yubico-authenticator-bin --skipreview --noconfirm
 sudo pacman -S pcsclite --noconfirm
 sudo systemctl enable --now pcscd
 
 # Discord install
-sudo pacman -S discord noto-fonts-cjk noto-fonts-emoji ttf-symbola --noconfirm
+sudo pacman -S discord ttf-symbola --noconfirm
 
 # VS Code Install
-sudo pacman -S ttf-firacode-nerd --noconfirm
-echo '1' | paru visual-studio-code-bin --skipreview --noconfirm
+echo '1' | paru -a visual-studio-code-bin --skipreview --noconfirm
 cp config/code-flags.conf ~/.config/code-flags.conf
 
 
@@ -108,15 +115,15 @@ sudo pacman -S steam --noconfirm
 
 # Install Slack
 # Login Fix: https://stackoverflow.com/questions/70867064/signing-into-slack-desktop-not-working-on-4-23-0-64-bit-ubuntu
-echo '1' | paru slack-electron --skipreview --noconfirm
+echo '1' | paru -a slack-electron --skipreview --noconfirm
 cp desktops/slack.desktop ~/.local/share/applications
 
 # Install Teams (It somehow just works)
-echo '1' | paru teams-for-linux-bin --skipreview --noconfirm
+echo '1' | paru -a teams-for-linux-bin --skipreview --noconfirm
 cp desktops/teams-for-linux.desktop ~/.local/share/applications
 
 # Node setup
-echo '1' | paru volta-bin --skipreview --noconfirm
+echo '1' | paru -a volta-bin --skipreview --noconfirm
 volta setup
 source ~/.bashrc
 volta install node@latest
@@ -133,7 +140,7 @@ sudo pacman -S python-pip --noconfirm
 
 # Java setup
 sudo pacman -S jdk-openjdk --noconfirm
-echo '1' | paru eclipse-java --skipreview --noconfirm
+echo '1' | paru -a eclipse-java --skipreview --noconfirm
 # Fix font aliasing in GTK apps (needs relogin)
 sudo pacman -S xdg-desktop-portal-gtk --noconfirm
 # To setup gpg signing go to preferences and lookup gpg and switch from bouncy castle to an external gpg executable /usr/bin/gpg
@@ -151,12 +158,11 @@ EOF
 
 # Install chromium with video accel for video decoding
 # Syu because just added chaotic-aur
-sudo pacman -Syu libva-utils vdpauinfo --noconfirm
-echo '1' | paru chromium-wayland-vaapi --skipreview --noconfirm
+sudo pacman -Syu libva-utils vdpauinfo chromium-wayland-vaapi --noconfirm
 cp desktops/chromium.desktop ~/.local/share/applications
 # Intel only
-echo "export VDPAU_DRIVER=va_gl" >> ~/.profile
-echo "export LIBVA_DRIVER_NAME=iHD" >> ~/.profile
+echo 'export VDPAU_DRIVER=va_gl' >> ~/.profile
+echo 'export LIBVA_DRIVER_NAME=iHD' >> ~/.profile
 source ~/.profile
 
 # libvirt install
