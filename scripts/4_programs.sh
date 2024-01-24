@@ -50,6 +50,7 @@ echo 'export MOZ_ENABLE_WAYLAND=1' >> ~/.profile
 # browser.quitShortcut.disabled = true
 
 # KDE Plasma Intel audio fix
+sudo pacman -S pipewire pipewire-audio pipewire-alsa pipewire-pulse pipewire-jack qpwgraph --noconfirm
 sudo cp config/audiofix.conf /etc/modprobe.d/audiofix.conf
 
 # Install display management
@@ -144,6 +145,16 @@ echo '1' | paru -a eclipse-java --skipreview --noconfirm
 # Fix font aliasing in GTK apps (needs relogin)
 sudo pacman -S xdg-desktop-portal-gtk --noconfirm
 # To setup gpg signing go to preferences and lookup gpg and switch from bouncy castle to an external gpg executable /usr/bin/gpg
+
+# Install CUPS with max compatibility
+sudo pacman -S cups cups-pdf ghostscript gsfonts foomatic-db-engine foomatic-db foomatic-db-ppds foomatic-db-nonfree foomatic-db-nonfree-ppds gutenprint foomatic-db-gutenprint-ppds --noconfirm
+sudo systemctl enable --now cups.socket
+
+# Give styling options to apps
+sudo pacman -S kde-gtk-config gnome-settings-daemon gsettings-desktop-schemas gsettings-qt --noconfirm
+
+# Dictionary for apps to use for spellcheck
+sudo pacman -S hunspell hunspell-en_US --noconfirm
 
 # Install [chaotic AUR](https://aur.chaotic.cx/)
 sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com

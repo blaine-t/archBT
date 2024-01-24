@@ -1,3 +1,4 @@
 secrets/.gnupg
 secrets/wg*
 secrets/ovpn*
+test.sh

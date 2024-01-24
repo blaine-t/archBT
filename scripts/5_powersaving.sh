@@ -12,7 +12,7 @@ cd ..
 sudo pacman -Syu --noconfirm
 
 # Install optional dependencies
-sudo pacman -S acpid hdparm --noconfirm
+sudo pacman -S acpid hdparm wireless_tools --noconfirm
 sudo systemctl enable --now acpid
 
 # Supress normal keypresses from logs
