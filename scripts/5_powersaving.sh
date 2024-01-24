@@ -20,4 +20,4 @@ cp config/acpi/* /etc/acpi/events/
 
 # laptop-mode-tools setup
 echo '1' | paru -a laptop-mode-tools --skipreview --noconfirm
-cp -r config/lm/* /etc/laptop-mode/
+cp -r config/laptop-mode/* /etc/laptop-mode/
