@@ -36,5 +36,24 @@ sudo ufw-docker install
 # Turn on ufw and enable it
 sudo ufw enable
 
+# Disable ebpf for userland security
+sudo cp configs/sysctl/51-disable-ebpf.conf /etc/sysctl.d/
+
 # Disable responding to pings
 sudo cp configs/sysctl/51-ignore-pings.conf /etc/sysctl.d/
+
+# Disable kptr access from user
+sudo cp configs/sysctl/51-kptr-restrict.conf /etc/sysctl.d/
+
+# Disable unprivledged sandbox
+sudo cp configs/sysctl/51-unprivileged-sandbox.conf /etc/sysctl.d/
+
+# Install linux security guard
+# Linux Kernel Runtime Guard
+
+# Mask the emergency shell
+sudo systemctl mask emergency.service emergency.target
+
+
+# Setup unbound
+# https://wiki.archlinux.org/title/Unbound

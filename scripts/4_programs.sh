@@ -42,12 +42,16 @@ cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
 sudo pacman -S firefox plasma-browser-integration --noconfirm
 # Extensions
 sudo pacman -S firefox-extension-ublock-origin firefox-decentraleyes firefox-dark-reader --noconfirm
-echo 'export MOZ_ENABLE_WAYLAND=1' >> ~/.profile
 # Firefox config changes:
 # widget.use-xdg-desktop-portal.mime-handler = 1
 # widget.use-xdg-desktop-portal.file-pickers = 1
 # media.hardwaremediakeys.enabled = false
 # browser.quitShortcut.disabled = true
+# extensions.pocket.enabled = false
+# browser.cache.disk.enable = false
+# browser.cache.memory.enable = true
+# browser.cache.memory.capacity = 1048576
+# Check here after install to make sure you have everything working: https://wiki.archlinux.org/title/Firefox
 
 # KDE Plasma Intel audio fix
 sudo pacman -S pipewire pipewire-audio pipewire-alsa pipewire-pulse pipewire-jack qpwgraph --noconfirm
@@ -74,6 +78,7 @@ echo 'export OBSIDIAN_USE_WAYLAND=1' >> ~/.profile
 sudo pacman -S chrony --noconfirm
 sudo systemctl enable --now chronyd
 sudo cp config/chrony.conf /etc/chrony.conf
+echo '1' | paru -a networkmanager-dispatcher-chrony --skipreview --noconfirm
 
 # Bluetooth support
 sudo pacman -S bluez bluez-utils bluedevil --noconfirm
@@ -155,6 +160,13 @@ sudo pacman -S kde-gtk-config gnome-settings-daemon gsettings-desktop-schemas gs
 
 # Dictionary for apps to use for spellcheck
 sudo pacman -S hunspell hunspell-en_US --noconfirm
+
+# KDE Connect for phone integration
+# sudo pacman -S kdeconnect --noconfirm
+
+# Clean out pacman cache
+sudo pacman -S pacman-contrib --noconfirm
+sudo systemctl enable --now paccache.timer
 
 # Install [chaotic AUR](https://aur.chaotic.cx/)
 sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
