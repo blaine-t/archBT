@@ -14,6 +14,9 @@ echo 'This script will install KDE-Plasma and paru (for phonon-qt5-mpv from the 
 sudo pacman -Syu rustup --noconfirm
 rustup default stable
 
+# Install pipewire-jack before jack2 installs
+sudo pacman -S pipewire-jack wireplumber --noconfirm
+
 # Install dependencies for given display server
 if [[ ! ${DISPLAY_SERVER} =~ [xX] ]]; then
     sudo pacman -S plasma-wayland-session --noconfirm
@@ -34,7 +37,6 @@ makepkg -si --noconfirm
 rm -rf ~/build
 
 # Install KDE Plasma minimum with mpv phonon backend and pipewire audio with networkmanager and default file manager and terminal
-sudo pacman -S pipewire-jack wireplumber --noconfirm
 sudo pacman -S mpv --noconfirm
 echo 'Installing phonon-qt5-mpv from the AUR'
 echo '1' | paru -a phonon-qt5-mpv --skipreview

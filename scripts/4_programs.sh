@@ -42,9 +42,9 @@ cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
 sudo pacman -S firefox plasma-browser-integration --noconfirm
 # Extensions
 sudo pacman -S firefox-ublock-origin firefox-decentraleyes firefox-dark-reader --noconfirm
-# Firefox cache in ram
-sudo pacman -S profile-sync-daemon --noconfirm
-systemctl --user enable --now psd
+# Firefox cache in ram (UNSTABLE NOT RECOMMENDED)
+# sudo pacman -S profile-sync-daemon --noconfirm
+# systemctl --user enable --now psd
 # Firefox config changes:
 # widget.use-xdg-desktop-portal.mime-handler = 1
 # widget.use-xdg-desktop-portal.file-pickers = 1
