@@ -73,10 +73,10 @@ echo
 read -n 1 -rp 'Do you want to use bcachefs encryption? [y/N] ' ENCRYPTION
 echo
 if [[ ${ENCRYPTION} =~ [yY] ]]; then
-    bcachefs format --encrypted ${ROOT_PARTITION}
+    bcachefs format --encrypted ${ROOT_PARTITION} --discard
     bcachefs unlock ${ROOT_PARTITION}
 else
-    bcachefs format ${ROOT_PARTITION}
+    bcachefs format ${ROOT_PARTITION} --discard
 fi
 
 # Mounts bcachefs partition to /mnt on live ISO
