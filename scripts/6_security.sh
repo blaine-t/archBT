@@ -48,6 +48,9 @@ sudo cp configs/sysctl/51-kptr-restrict.conf /etc/sysctl.d/
 # Disable unprivledged sandbox
 sudo cp configs/sysctl/51-unprivileged-sandbox.conf /etc/sysctl.d/
 
+# Add some networking security and performance features
+sudo cp configs/sysctl/99-networking.conf /etc/sysctl.d/
+
 # Install linux security guard
 # Linux Kernel Runtime Guard
 

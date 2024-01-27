@@ -42,6 +42,9 @@ cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
 sudo pacman -S firefox plasma-browser-integration --noconfirm
 # Extensions
 sudo pacman -S firefox-extension-ublock-origin firefox-decentraleyes firefox-dark-reader --noconfirm
+# Firefox cache in ram
+sudo pacman -S profile-sync-daemon --noconfirm
+sudo systemctl enable --now psd
 # Firefox config changes:
 # widget.use-xdg-desktop-portal.mime-handler = 1
 # widget.use-xdg-desktop-portal.file-pickers = 1
@@ -125,8 +128,8 @@ echo '1' | paru -a slack-electron --skipreview --noconfirm
 cp desktops/slack.desktop ~/.local/share/applications
 
 # Install Teams (It somehow just works)
-echo '1' | paru -a teams-for-linux-bin --skipreview --noconfirm
-cp desktops/teams-for-linux.desktop ~/.local/share/applications
+# echo '1' | paru -a teams-for-linux-bin --skipreview --noconfirm
+# cp desktops/teams-for-linux.desktop ~/.local/share/applications
 
 # Node setup
 echo '1' | paru -a volta-bin --skipreview --noconfirm
