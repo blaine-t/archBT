@@ -19,15 +19,10 @@ sudo ufw logging off
 
 # Allow VPNs to work through firewall
 sudo cp /etc/ufw/before.rules /etc/ufw/before.rules.bak
-sudo cp configs/ufw/before.rules /etc/ufw/before.rules
+sudo cp config/ufw/before.rules /etc/ufw/before.rules
 sudo sed -i 's,#net/ipv4/ip_forward=1,net/ipv4/ip_forward=1,g' /etc/ufw/sysctl.conf
 sudo sed -i 's,#net/ipv6/conf/default/forwarding=1,net/ipv6/conf/default/forwarding=1,g' /etc/ufw/sysctl.conf
 sudo sed -i 's,#net/ipv6/conf/all/forwarding=1,net/ipv6/conf/all/forwarding=1,g' /etc/ufw/sysctl.conf
-
-
-# Make Docker not create vulnerabilities when using UFW
-echo '1' | paru -a ufw-docker --skipreview --noconfirm
-sudo ufw-docker install
 
 # Install UFW blocklist to protect from malicious IPs
 # https://github.com/poddmo/ufw-blocklist
@@ -36,20 +31,25 @@ sudo ufw-docker install
 # Turn on ufw and enable it
 sudo ufw enable
 
+# Make Docker not create vulnerabilities when using UFW
+echo '1' | paru -a ufw-docker --skipreview
+sudo ufw-docker install
+sudo systemctl restart ufw
+
 # Disable ebpf for userland security
-sudo cp configs/sysctl/51-disable-ebpf.conf /etc/sysctl.d/
+sudo cp config/sysctl/51-disable-ebpf.conf /etc/sysctl.d/
 
 # Disable responding to pings
-sudo cp configs/sysctl/51-ignore-pings.conf /etc/sysctl.d/
+sudo cp config/sysctl/51-ignore-pings.conf /etc/sysctl.d/
 
 # Disable kptr access from user
-sudo cp configs/sysctl/51-kptr-restrict.conf /etc/sysctl.d/
+sudo cp config/sysctl/51-kptr-restrict.conf /etc/sysctl.d/
 
 # Disable unprivledged sandbox
-sudo cp configs/sysctl/51-unprivileged-sandbox.conf /etc/sysctl.d/
+sudo cp config/sysctl/51-unprivileged-sandbox.conf /etc/sysctl.d/
 
 # Add some networking security and performance features
-sudo cp configs/sysctl/99-networking.conf /etc/sysctl.d/
+sudo cp config/sysctl/99-networking.conf /etc/sysctl.d/
 
 # Install linux security guard
 # Linux Kernel Runtime Guard

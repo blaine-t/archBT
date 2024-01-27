@@ -16,29 +16,29 @@ sudo pacman -S acpid hdparm wireless_tools --noconfirm
 sudo systemctl enable --now acpid
 
 # Supress normal keypresses from logs
-cp config/acpi/buttons /etc/acpi/events/
+sudo cp config/acpi/buttons /etc/acpi/events/
 
 # laptop-mode-tools setup
-echo '1' | paru -a laptop-mode-tools --skipreview --noconfirm
-cp -r config/laptop-mode/* /etc/laptop-mode/
+echo '1' | paru -a laptop-mode-tools --skipreview
+sudo cp -r config/laptop-mode/* /etc/laptop-mode/
 
 # Turn off watchdog to conserve battery
-cp config/modprobe/disable-sp5100-watchdog.conf /etc/modprobe.d/
+sudo cp config/modprobe/disable-sp5100-watchdog.conf /etc/modprobe.d/
 
 # Run GPU in powersavings
-cp config/modprobe/i915.conf /etc/modprobe.d/
+sudo cp config/modprobe/i915.conf /etc/modprobe.d/
 
 # Disable core dumps
-sudo cp configs/sysctl/50-coredump.conf /etc/sysctl.d/
+sudo cp config/sysctl/50-coredump.conf /etc/sysctl.d/
 
 # Disable hibernation
-sudo cp configs/systemd/sleep.conf /etc/systemd/
+sudo cp config/systemd/sleep.conf /etc/systemd/
 
 # Make mouse not accidentally wake up laptop while sleeping
-sudo cp configs/udev/50-wake-on-device.rules /etc/udev/rules.d/
+sudo cp config/udev/50-wake-on-device.rules /etc/udev/rules.d/
 
 # Change ioschedulers based on device
-sudo cp configs/udev/60-ioschedulers.rules /etc/udev/rules.d/
+sudo cp config/udev/60-ioschedulers.rules /etc/udev/rules.d/
 
 # vm.laptop_mode = 5 investigation
 

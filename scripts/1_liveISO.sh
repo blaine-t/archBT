@@ -73,10 +73,10 @@ echo
 read -n 1 -rp 'Do you want to use bcachefs encryption? [y/N] ' ENCRYPTION
 echo
 if [[ ${ENCRYPTION} =~ [yY] ]]; then
-    bcachefs format --encrypted ${ROOT_PARTITION} --discard
+    bcachefs format --encrypted --discard ${ROOT_PARTITION}
     bcachefs unlock ${ROOT_PARTITION}
 else
-    bcachefs format ${ROOT_PARTITION} --discard
+    bcachefs format --discard ${ROOT_PARTITION}
 fi
 
 # Mounts bcachefs partition to /mnt on live ISO
@@ -88,7 +88,7 @@ mount ${BOOT_PARTITION} /mnt/boot/EFI
 mkdir /mnt/boot/EFI/Linux
 
 # Install "required" packages to new install
-pacstrap /mnt base base-devel linux-firmware mkinitcpio bcachefs-tools efibootmgr networkmanager git nano posix
+pacstrap /mnt base base-devel linux-firmware mkinitcpio bcachefs-tools efibootmgr iptables-nft networkmanager git nano posix
 
 # Prompt for kernels
 echo 'You will be prompted for 3 differnt kernels. You can select any/multiple as long as you pick at least one. (LTS CURRENTLY DOESNT SUPPORT BCACHEFS)'
@@ -257,5 +257,5 @@ export DISPLAY_SERVER
 export GPU
 
 # Changes into root on the new filesystem
-echo 'cd to /archBT and run 2_rootChroot.sh'
+echo 'cd to /archBT/scripts and run 2_rootChroot.sh'
 arch-chroot /mnt

@@ -35,16 +35,16 @@ git config --global commit.gpgsign true
 paru -Syu --noconfirm
 
 # Oh my bash install
-echo '1' | paru -a oh-my-bash-git --skipreview --noconfirm
+echo '1' | paru -a oh-my-bash-git --skipreview
 cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
 
 # Install Firefox
 sudo pacman -S firefox plasma-browser-integration --noconfirm
 # Extensions
-sudo pacman -S firefox-extension-ublock-origin firefox-decentraleyes firefox-dark-reader --noconfirm
+sudo pacman -S firefox-ublock-origin firefox-decentraleyes firefox-dark-reader --noconfirm
 # Firefox cache in ram
 sudo pacman -S profile-sync-daemon --noconfirm
-sudo systemctl enable --now psd
+systemctl --user enable --now psd
 # Firefox config changes:
 # widget.use-xdg-desktop-portal.mime-handler = 1
 # widget.use-xdg-desktop-portal.file-pickers = 1
@@ -58,7 +58,7 @@ sudo systemctl enable --now psd
 
 # KDE Plasma Intel audio fix
 sudo pacman -S pipewire pipewire-audio pipewire-alsa pipewire-pulse pipewire-jack qpwgraph --noconfirm
-sudo cp config/audiofix.conf /etc/modprobe.d/audiofix.conf
+sudo cp config/modprobe/audiofix.conf /etc/modprobe.d/audiofix.conf
 
 # Install display management
 sudo pacman -S kscreen --noconfirm
@@ -80,24 +80,25 @@ echo 'export OBSIDIAN_USE_WAYLAND=1' >> ~/.profile
 # Chrony setup
 sudo pacman -S chrony --noconfirm
 sudo systemctl enable --now chronyd
-sudo cp config/chrony.conf /etc/chrony.conf
-echo '1' | paru -a networkmanager-dispatcher-chrony --skipreview --noconfirm
+sudo cp config/programs/chrony.conf /etc/chrony.conf
+echo '1' | paru -a networkmanager-dispatcher-chrony --skipreview
 
 # Bluetooth support
 sudo pacman -S bluez bluez-utils bluedevil --noconfirm
 sudo systemctl enable --now bluetooth
 
 # Yubico authenticator install
-echo '1' | paru -a yubico-authenticator-bin --skipreview --noconfirm
+echo '1' | paru -a yubico-authenticator-bin --skipreview
 sudo pacman -S pcsclite --noconfirm
 sudo systemctl enable --now pcscd
 
 # Discord install
-sudo pacman -S discord ttf-symbola --noconfirm
+# echo '1' | paru -a ttf-symbola --skipreview
+sudo pacman -S discord --noconfirm
 
 # VS Code Install
-echo '1' | paru -a visual-studio-code-bin --skipreview --noconfirm
-cp config/code-flags.conf ~/.config/code-flags.conf
+echo '1' | paru -a visual-studio-code-bin --skipreview
+cp config/programs/code-flags.conf ~/.config/code-flags.conf
 
 
 # Bash history file unlimited support
@@ -124,15 +125,15 @@ sudo pacman -S steam --noconfirm
 
 # Install Slack
 # Login Fix: https://stackoverflow.com/questions/70867064/signing-into-slack-desktop-not-working-on-4-23-0-64-bit-ubuntu
-echo '1' | paru -a slack-electron --skipreview --noconfirm
+echo '1' | paru -a slack-electron --skipreview
 cp desktops/slack.desktop ~/.local/share/applications
 
 # Install Teams (It somehow just works)
-# echo '1' | paru -a teams-for-linux-bin --skipreview --noconfirm
+# echo '1' | paru -a teams-for-linux-bin --skipreview
 # cp desktops/teams-for-linux.desktop ~/.local/share/applications
 
 # Node setup
-echo '1' | paru -a volta-bin --skipreview --noconfirm
+echo '1' | paru -a volta-bin --skipreview
 volta setup
 source ~/.bashrc
 volta install node@latest
@@ -149,7 +150,7 @@ sudo pacman -S python-pip --noconfirm
 
 # Java setup
 sudo pacman -S jdk-openjdk --noconfirm
-echo '1' | paru -a eclipse-java --skipreview --noconfirm
+echo '1' | paru -a eclipse-java --skipreview
 # Fix font aliasing in GTK apps (needs relogin)
 sudo pacman -S xdg-desktop-portal-gtk --noconfirm
 # To setup gpg signing go to preferences and lookup gpg and switch from bouncy castle to an external gpg executable /usr/bin/gpg
@@ -193,7 +194,7 @@ source ~/.profile
 
 # libvirt install
 # Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
-yes | sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm
+sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm --noconfirm
 sudo usermod -aG libvirt ${USER}
 
 sudo sed -i 's/#unix_sock_group/unix_sock_group/g' /etc/libvirt/libvirtd.conf

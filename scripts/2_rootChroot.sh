@@ -43,8 +43,9 @@ EOF
 sed -i 's,#MAKEFLAGS="-j2",MAKEFLAGS="-j$(nproc)",g' /etc/makepkg.conf
 sed -i "s,PKGEXT='.pkg.tar.zst',PKGEXT='.pkg.tar',g" /etc/makepkg.conf
 
-# Speedup pacman with parallel downloads
-sed -i 's,#Paral,Paral,g' /etc/pacman.conf
+# Speedup pacman with parallel downloads and add color
+sed -i "s,#ParallelDownloads = 5,ParallelDownloads = $(nproc),g" /etc/pacman.conf
+sed -i 's,#Color,Color,g' /etc/pacman.conf
 
 # Creates the userspace user with a password and adds them to appropriate groups
 read -rp 'Enter username: ' USERNAME
@@ -179,5 +180,5 @@ EOF
 mkdir -p /home/${USERNAME}/archBT
 mv ./* /home/${USERNAME}/archBT
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/archBT
-cd /home/${USERNAME}/archBT
+cd /home/${USERNAME}/archBT/scripts
 su ${USERNAME}
