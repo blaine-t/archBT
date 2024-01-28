@@ -14,8 +14,8 @@ echo 'This script will install KDE-Plasma and paru (for phonon-qt5-mpv from the 
 sudo pacman -Syu rustup --noconfirm
 rustup default stable
 
-# Install pipewire-jack before jack2 installs
-sudo pacman -S pipewire-jack wireplumber --noconfirm
+# Install pipewire-jack before jack2 installs and phonon-qt5-vlc for only official phonon backend
+sudo pacman -S pipewire-jack wireplumber phonon-qt5-vlc --noconfirm
 
 # Install dependencies for given display server
 if [[ ! ${DISPLAY_SERVER} =~ [xX] ]]; then
@@ -25,21 +25,7 @@ if [[ ! ${DISPLAY_SERVER} =~ [wW] ]]; then
     sudo pacman -S xorg-server xf86-input-evdev --noconfirm
 fi
 
-# Install [Paru](https://github.com/Morganamilo/paru#installation)
-# Used to easily download and install applications from the AUR
-sudo pacman -S --needed base-devel
-cd ~
-mkdir build
-cd build
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si --noconfirm
-rm -rf ~/build
-
 # Install KDE Plasma minimum with mpv phonon backend and pipewire audio with networkmanager and default file manager and terminal
-sudo pacman -S mpv --noconfirm
-echo 'Installing phonon-qt5-mpv from the AUR'
-echo '1' | paru -a phonon-qt5-mpv --skipreview
 sudo pacman -S ttf-dejavu ttf-firacode-nerd ttf-liberation adobe-source-han-sans-otc-fonts ttf-hanazono noto-fonts-emoji noto-fonts-cjk --noconfirm
 sudo pacman -S breeze breeze-gtk --noconfirm
 sudo pacman -S dolphin dolphin-plugins konsole khotkeys plasma-desktop plasma-nm plasma-pa pipewire-pulse pipewire-alsa pipewire-v4l2 --noconfirm

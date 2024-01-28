@@ -79,7 +79,7 @@ fi
 # Set cmdline parameters for kernel
 PRUUID=$(blkid -s PARTUUID -o value ${ROOT_PARTITION})
 # ASPM powersupersave might not be working
-echo "root=/dev/disk/by-partuuid/${PRUUID} rw quiet bgrt_disable nmi_watchdog=0 acpi_osi=\"Windows 2015\" acpi_osi=! pcie_aspm=force pcie_aspm.policy=powersupersave drm.vblankoffdelay=1" > /etc/kernel/cmdline
+echo "root=/dev/disk/by-partuuid/${PRUUID} rw quiet lockdown=integrity bgrt_disable nmi_watchdog=0 acpi_osi=\"Windows 2015\" acpi_osi=! pcie_aspm=force pcie_aspm.policy=powersupersave drm.vblankoffdelay=1" > /etc/kernel/cmdline
 
 # Add boot entries for standard linux and the fallback image
 # AND

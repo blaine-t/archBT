@@ -34,6 +34,17 @@ git config --global commit.gpgsign true
 # Update packages
 paru -Syu --noconfirm
 
+# Install [Paru](https://github.com/Morganamilo/paru#installation)
+# Used to easily download and install applications from the AUR
+sudo pacman -S --needed base-devel
+cd ~
+mkdir build
+cd build
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si --noconfirm
+rm -rf ~/build
+
 # Oh my bash install
 echo '1' | paru -a oh-my-bash-git --skipreview
 cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
