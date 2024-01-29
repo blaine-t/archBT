@@ -95,26 +95,26 @@ echo 'You will be prompted for 3 differnt kernels. You can select any/multiple a
 read -n 1 -rp 'Do you want the linux-lts kernel? [y/N] ' LTS
 echo
 if [[ ${LTS} =~ [yY] ]]; then
-    cp presets/linux-lts.preset /mnt/etc/mkinitcpio.d/
+    cp mkinitcpio/presets/linux-lts.preset /mnt/etc/mkinitcpio.d/
     pacstrap /mnt linux-lts linux-lts-headers
 fi
 read -n 1 -rp 'Do you want the linux-zen kernel? [y/N] ' ZEN
 echo
 if [[ ${ZEN} =~ [yY] ]]; then
-    cp presets/linux-zen.preset /mnt/etc/mkinitcpio.d/
+    cp mkinitcpio/presets/linux-zen.preset /mnt/etc/mkinitcpio.d/
     pacstrap /mnt linux-zen linux-zen-headers
 fi
 
 if [[ ! ${LTS} =~ [yY] ]] && [[ ! ${ZEN} =~ [yY] ]]; then
     echo "Installing Linux kernel since others weren't selected"
     LINUX=Y
-    cp presets/linux.preset /mnt/etc/mkinitcpio.d/
+    cp mkinitcpio/presets/linux.preset /mnt/etc/mkinitcpio.d/
     pacstrap /mnt linux linux-headers
 else
     read -n 1 -rp 'Do you want the linux kernel? [y/N] ' LINUX
     echo
     if [[ ${LINUX} =~ [yY] ]]; then
-        cp presets/linux.preset /mnt/etc/mkinitcpio.d/
+        cp mkinitcpio/presets/linux.preset /mnt/etc/mkinitcpio.d/
         pacstrap /mnt linux linux-headers
     fi
 fi
