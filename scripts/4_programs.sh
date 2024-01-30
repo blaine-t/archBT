@@ -31,6 +31,11 @@ read -rp 'Enter git pubkey: ' PUBKEYID
 git config --global user.signingkey ${PUBKEYID}
 git config --global commit.gpgsign true
 
+# Reflector setup
+sudo pacman -S reflector --noconfirm
+sudo cp config/programs/reflector.conf /etc/xdg/reflector/reflector.conf
+sudo systemctl enable --now reflector
+
 # Update packages
 paru -Syu --noconfirm
 

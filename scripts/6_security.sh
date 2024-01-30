@@ -32,12 +32,14 @@ sudo sed -i 's,#net/ipv6/conf/all/forwarding=1,net/ipv6/conf/all/forwarding=1,g'
 sudo ufw enable
 
 # Make Docker not create vulnerabilities when using UFW
+sudo pacman -S docker --noconfirm
 echo '1' | paru -a ufw-docker --skipreview
 sudo ufw-docker install
 sudo systemctl restart ufw
 
 # Disable ebpf for userland security
-sudo cp config/sysctl/51-disable-ebpf.conf /etc/sysctl.d/
+# BREAKS YUBIKEY ON FIREFOX
+# sudo cp config/sysctl/51-disable-ebpf.conf /etc/sysctl.d/
 
 # Disable responding to pings
 sudo cp config/sysctl/51-ignore-pings.conf /etc/sysctl.d/

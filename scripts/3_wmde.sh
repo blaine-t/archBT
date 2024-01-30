@@ -13,6 +13,8 @@ echo 'This script will install KDE-Plasma and paru (for phonon-qt5-mpv from the 
 # Update pacman cache and install Rust for paru
 sudo pacman -Syu rustup --noconfirm
 rustup default stable
+echo 'export CARGO_HOME="$HOME/.cargo' >> ~/.bashrc
+echo 'export PATH="$CARGO_HOME/bin:$PATH' >> ~/.bashrc
 
 # Install pipewire-jack before jack2 installs and phonon-qt5-vlc for only official phonon backend
 sudo pacman -S pipewire-jack wireplumber phonon-qt5-vlc --noconfirm
