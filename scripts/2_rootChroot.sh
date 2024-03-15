@@ -126,8 +126,9 @@ while [[ ${boot_entries} -gt 0 ]]; do
 done
 
 # Copy over bcachefs hook and install
-cp mkinitcpio/hooks/bcachefs /etc/initcpio/hooks/
-cp mkinitcpio/install/bcachefs /etc/initcpio/install/
+# Hopefully no more need for this?
+# cp mkinitcpio/hooks/bcachefs /etc/initcpio/hooks/
+# cp mkinitcpio/install/bcachefs /etc/initcpio/install/
 
 # Regenerate the initramfs
 mkinitcpio -P
