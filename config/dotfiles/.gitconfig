@@ -1,0 +1,8 @@
+[user]
+	name = blaine-t
+	email = blaine-t@bathost.net
+	signingkey = 8D281DF6BDB25B4A
+[commit]
+	gpgsign = true
+[init]
+	defaultbranch = main

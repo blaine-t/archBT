@@ -1,0 +1,61 @@
+{
+    "env": {
+        "PATH": "$(PATH):$(HOME)\/.local\/bin"
+    },
+    "apps": [
+        {
+            "name": "Full Res Desktop High Refresh",
+            "image-path": "",
+            "exclude-global-prep-cmd": "false",
+            "auto-detach": "false",
+            "prep-cmd": [
+                {
+                    "do": "swaymsg output \"HEADLESS-1\" resolution 2388x1668@120Hz",
+                    "undo": ""
+                }
+            ]
+        },
+        {
+            "name": "Low Res Desktop High Refresh",
+            "image-path": "",
+            "prep-cmd": [
+                {
+                    "do": "swaymsg output \"HEADLESS-1\" resolution 1194x834@120Hz",
+                    "undo": ""
+                }
+            ],
+            "exclude-global-prep-cmd": "false",
+            "auto-detach": "false"
+        },
+        {
+            "name": "Full Res Desktop Normal Refresh",
+            "output": "",
+            "cmd": "",
+            "exclude-global-prep-cmd": "false",
+            "elevated": "false",
+            "auto-detach": "false",
+            "prep-cmd": [
+                {
+                    "do": "swaymsg output \"HEADLESS-1\" resolution 2388x1668@60Hz",
+                    "undo": ""
+                }
+            ],
+            "image-path": ""
+        },
+        {
+            "name": "Low Res Desktop Normal Refresh",
+            "output": "",
+            "cmd": "",
+            "exclude-global-prep-cmd": "false",
+            "elevated": "false",
+            "auto-detach": "false",
+            "prep-cmd": [
+                {
+                    "do": "swaymsg output \"HEADLESS-1\" resolution 1194x834@60Hz",
+                    "undo": ""
+                }
+            ],
+            "image-path": ""
+        }
+    ]
+}
