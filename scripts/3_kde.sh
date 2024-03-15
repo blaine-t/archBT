@@ -35,6 +35,8 @@ sudo pacman -S baloo-widgets ffmpegthumbs kdegraphics-thumbnailers kdenetwork-fi
 # Not for my system
 # sudo pacman -S iio-sensor-proxy maliit-keyboard switcheroo-control --noconfirm
 
+export DE="K"
+
 echo 'This does not include a display manager. If you want one then install GDM or SDDM-git from the AUR for wayland support.'
 echo 'If you are on X then you can install most display managers. Recommended SDDM'
 echo 'You can optionally install my starter programs by running 4_programs.sh AFTER REBOOT. READ IT BEFORE RUNNING IT'

@@ -12,6 +12,7 @@ cat << EOF
 This script is used to install programs for after install
 This is customized to my LG Gram 15Z90Q-P.AAC6U1 with an i5-1240p running Wayland
 It does multiple unreviewed AUR installs so be aware
+It is currently written for a KDE install but will be adapted to support KDE and Sway in the future
 
 EOF
 
@@ -72,7 +73,10 @@ sudo pacman -S firefox-ublock-origin firefox-decentraleyes firefox-dark-reader -
 # browser.cache.memory.capacity = 1048576
 # Check here after install to make sure you have everything working: https://wiki.archlinux.org/title/Firefox
 
-# KDE Plasma Intel audio fix
+# Install audio support with Intel audiofix
+echo "!---!"
+echo "Audio fix is untested. If it doesn't work properly for you delete or modify the file at /etc/modprobe.d/audiofix.conf"
+echo "!---!"
 sudo pacman -S pipewire pipewire-audio pipewire-alsa pipewire-pulse pipewire-jack qpwgraph --noconfirm
 sudo cp config/modprobe/audiofix.conf /etc/modprobe.d/audiofix.conf
 

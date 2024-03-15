@@ -171,7 +171,7 @@ cat << EOF
 
 If you messed up your user password now is the time to fix that.
 The cmdline supplied in this script is intended for laptops. If you don't need laptop powersavings feel free to delete after bgrt_disable.
-Otherwise you can just Ctrl+D reboot or run 3_wmde.sh to install a minimal KDE Plasma Desktop install.
+Otherwise you can just Ctrl+D reboot or run 3_kde.sh to install a minimal KDE Plasma Desktop or 3_sway.sh to install a minimal Sway Desktop.
 Switching to user...
 
 EOF
