@@ -8,16 +8,10 @@ IFS=$'\n\t'
 cd ${0%/*}
 cd ..
 
-echo 'This script will install KDE-Plasma and paru (for phonon-qt5-mpv from the AUR). MUST be run as user.'
+echo 'This script will install KDE-Plasma. MUST be run as user.'
 
-# Update pacman cache and install Rust for paru
-sudo pacman -Syu rustup --noconfirm
-rustup default stable
-echo 'export CARGO_HOME="$HOME/.cargo' >> ~/.bashrc
-echo 'export PATH="$CARGO_HOME/bin:$PATH' >> ~/.bashrc
-
-# Install pipewire-jack before jack2 installs and phonon-qt5-vlc for only official phonon backend
-sudo pacman -S pipewire-jack wireplumber phonon-qt5-vlc --noconfirm
+# Update pacman cache and install pipewire-jack before jack2 installs and phonon-qt5-vlc for only official phonon backend
+sudo pacman -Syu pipewire-jack wireplumber phonon-qt5-vlc --noconfirm
 
 # Install dependencies for given display server
 if [[ ! ${DISPLAY_SERVER} =~ [xX] ]]; then
@@ -34,8 +28,6 @@ sudo pacman -S dolphin dolphin-plugins konsole khotkeys plasma-desktop plasma-nm
 sudo pacman -S baloo-widgets ffmpegthumbs kdegraphics-thumbnailers kdenetwork-filesharing print-manager xwaylandvideobridge xsettingsd --noconfirm
 # Not for my system
 # sudo pacman -S iio-sensor-proxy maliit-keyboard switcheroo-control --noconfirm
-
-export DE="K"
 
 echo 'This does not include a display manager. If you want one then install GDM or SDDM-git from the AUR for wayland support.'
 echo 'If you are on X then you can install most display managers. Recommended SDDM'

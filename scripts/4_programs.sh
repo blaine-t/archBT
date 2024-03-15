@@ -34,12 +34,15 @@ git config --global user.signingkey ${PUBKEYID}
 git config --global commit.gpgsign true
 
 # Reflector setup
-sudo pacman -S reflector --noconfirm
+sudo pacman -Syu reflector --noconfirm
 sudo cp config/programs/reflector.conf /etc/xdg/reflector/reflector.conf
 sudo systemctl enable --now reflector
 
-# Update packages
-paru -Syu --noconfirm
+# Install Rust for paru
+sudo pacman -Syu rustup --noconfirm
+rustup default stable
+echo 'export CARGO_HOME="$HOME/.cargo' >> ~/.bashrc
+echo 'export PATH="$CARGO_HOME/bin:$PATH' >> ~/.bashrc
 
 # Install [Paru](https://github.com/Morganamilo/paru#installation)
 # Used to easily download and install applications from the AUR
@@ -51,6 +54,9 @@ git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si --noconfirm
 rm -rf ~/build
+
+# Update packages
+paru -Syu --noconfirm
 
 # Oh my bash install
 echo '1' | paru -a oh-my-bash-git --skipreview
