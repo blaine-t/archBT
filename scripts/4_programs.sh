@@ -23,6 +23,7 @@ read -rp 'Enter git email: ' EMAIL
 sudo -l
 
 ## Git config
+git config --global init.defaultbranch main
 git config --global user.name ${USERNAME}
 git config --global user.email ${EMAIL}
 ## GPG support
