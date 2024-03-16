@@ -5,8 +5,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Force script PWD to be where the script is located up a directory
-cd ${0%/*}
-cd ..
+cd -P -- "$(dirname -- "$0")" && cd ..
 
 cat << EOF
 This script is used to install programs for after install on KDE

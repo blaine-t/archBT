@@ -1,12 +1,7 @@
 #!/bin/bash
 
-# Bash Strict Mode [aaron maxwell](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
-set -euo pipefail
-IFS=$'\n\t'
-
 # Force script PWD to be where the script is located up a directory
-cd ${0%/*}
-cd ..
+cd -P -- "$(dirname -- "$0")" && cd ..
 
 cat << EOF
 This script is used to install programs for after install
@@ -15,6 +10,27 @@ It does multiple unreviewed AUR installs so be aware
 It is currently written for a KDE install
 
 EOF
+
+# VPN Setup (Do before strict mode)
+sudo systemctl enable --now systemd-resolved
+# Wireguard
+cd secrets
+for file in *.conf; do
+    nmcli connection import type wireguard file ${file}
+    nmcli connection modify ${file%.*} connect.autoconnect no
+    nmcli connection down ${file%.*}
+done
+# OpenVPN
+sudo pacman -S networkmanager-openvpn --noconfirm
+for file in *.ovpn; do
+    nmcli connection import type openvpn file ${file}
+done
+# Back to main directory
+cd ..
+
+# Bash Strict Mode [aaron maxwell](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+set -euo pipefail
+IFS=$'\n\t'
 
 read -rp 'Enter git username: ' USERNAME
 read -rp 'Enter git email: ' EMAIL
@@ -27,7 +43,7 @@ git config --global init.defaultbranch main
 git config --global user.name ${USERNAME}
 git config --global user.email ${EMAIL}
 ## GPG support
-cp secrets/.gnupg ~/.gnupg
+cp -r secrets/.gnupg ~/.gnupg
 gpg --list-keys --keyid-format=long
 read -rp 'Enter git pubkey: ' PUBKEYID
 git config --global user.signingkey ${PUBKEYID}
@@ -47,13 +63,13 @@ echo 'export PATH="$CARGO_HOME/bin:$PATH' >> ~/.bashrc
 # Install [Paru](https://github.com/Morganamilo/paru#installation)
 # Used to easily download and install applications from the AUR
 sudo pacman -S --needed base-devel
-cd ~
 mkdir build
 cd build
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si --noconfirm
-rm -rf ~/build
+cd ../..
+rm -rf build
 
 # Update packages
 paru -Syu --noconfirm
@@ -118,17 +134,6 @@ echo 'export HISTSIZE="toInfinity"' >> ~/.bashrc
 echo 'export HISTFILESIZE="andBeyond"' >> ~/.bashrc
 echo ". ${HOME}/.bashrc" >> ~/.profile # Needed for TTY login
 
-# VPN Setup
-sudo systemctl enable --now systemd-resolved
-# Wireguard
-cd secrets
-nmcli connection import type wireguard file *.conf
-# TODO: TEST Shell expansion. It *should* work
-nmcli connection modify *.conf connect.autoconnect no
-# OpenVPN
-sudo pacman -S networkmanager-openvpn --noconfirm
-nmcli connection import type openvpn file *.ovpn
-
 # Install Spotify xWayland to have media support
 sudo pacman -S spotify-launcher --noconfirm
 
@@ -181,17 +186,6 @@ sudo pacman -S hunspell hunspell-en_US --noconfirm
 sudo pacman -S pacman-contrib --noconfirm
 sudo systemctl enable --now paccache.timer
 
-# Install [chaotic AUR](https://aur.chaotic.cx/)
-sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
-sudo pacman-key --lsign-key 3056513887B78AEB
-sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' --noconfirm
-cat << EOF | sudo tee -a /etc/pacman.conf
-
-[chaotic-aur]
-Include = /etc/pacman.d/chaotic-mirrorlist
-
-EOF
-
 # Install chromium with video accel for video decoding
 # Syu because just added chaotic-aur
 # sudo pacman -Syu libva-utils vdpauinfo chromium-wayland-vaapi --noconfirm
@@ -204,7 +198,7 @@ source ~/.profile
 
 # libvirt install
 # Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
-sudo pacman -S virt-manager qemu-desktop dnsmasq nftables swtpm --noconfirm
+sudo pacman -S virt-manager qemu-desktop dnsmasq swtpm --noconfirm
 sudo usermod -aG libvirt ${USER}
 
 sudo sed -i 's/#unix_sock_group/unix_sock_group/g' /etc/libvirt/libvirtd.conf
@@ -213,3 +207,17 @@ sudo sed -i "s/#user = \"libvirt-qemu\"/user = \"${USER}\"/g" /etc/libvirt/qemu.
 sudo sed -i "s/#group = \"libvirt-qemu\"/group = \"${USER}\"/g" /etc/libvirt/qemu.conf
 
 echo 'In virt-manager you can remove the system QEMU connection and add a User Session QEMU connections'
+
+# Install [chaotic AUR](https://aur.chaotic.cx/)
+sudo pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+sudo pacman-key --lsign-key 3056513887B78AEB
+sudo pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' --noconfirm
+cat << EOF | sudo tee -a /etc/pacman.conf
+
+[chaotic-aur]
+Include = /etc/pacman.d/chaotic-mirrorlist
+
+EOF
+
+# Update Chaotic AUR database
+sudo pacman -Syu

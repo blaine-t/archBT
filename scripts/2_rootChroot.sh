@@ -5,8 +5,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Force script PWD to be where the script is located up a directory
-cd ${0%/*}
-cd ..
+cd -P -- "$(dirname -- "$0")" && cd ..
 
 # Sets the local time
 read -rp 'Enter timezone for system (Ex: America/Chicago): ' TIMEZONE
