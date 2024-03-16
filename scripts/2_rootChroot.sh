@@ -25,7 +25,7 @@ read -rp 'Hostname: ' HOSTNAME
 
 # Sets up hostname and hosts file
 echo ${HOSTNAME} > /etc/hostname
-cat << EOF >> /etc/hosts
+cat << EOF > /etc/hosts
 # Static table lookup for hostnames
 # See hosts(5) for details.
 
@@ -37,6 +37,7 @@ cat << EOF >> /etc/hosts
 ::1             localhost ip6-localhost ip6-loopback
 ff02::1         ip6-allnodes
 ff02::2         ip6-allrouters
+
 EOF
 
 # Speedup compiling for makepkg: https://gist.github.com/frandieguez/0b13bd58148679aa9955
@@ -126,9 +127,12 @@ while [[ ${boot_entries} -gt 0 ]]; do
 done
 
 # Copy over bcachefs hook and install
-# Hopefully no more need for this?
-# cp mkinitcpio/hooks/bcachefs /etc/initcpio/hooks/
-# cp mkinitcpio/install/bcachefs /etc/initcpio/install/
+# NEEDED UNTIL BCACHEFS TOOLS ARE FIXED
+cp mkinitcpio/hooks/bcachefs /etc/initcpio/hooks/
+cp mkinitcpio/install/bcachefs /etc/initcpio/install/
+
+# Pin Bcachefs-tools until 1.6.4 bugs fixed
+pacman -U https://archive.archlinux.org/packages/b/bcachefs-tools/bcachefs-tools-3%3A1.6.3-1-x86_64.pkg.tar.zst
 
 # Regenerate the initramfs
 mkinitcpio -P
@@ -182,4 +186,5 @@ mkdir -p /home/${USERNAME}/archBT
 mv ./* /home/${USERNAME}/archBT
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/archBT
 cd /home/${USERNAME}/archBT/scripts
+rmdir /archBT
 su ${USERNAME}

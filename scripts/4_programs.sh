@@ -134,9 +134,12 @@ echo 'export HISTFILESIZE="andBeyond"' >> ~/.bashrc
 echo ". ${HOME}/.bashrc" >> ~/.profile # Needed for TTY login
 
 # VPN Setup
+sudo systemctl enable --now systemd-resolved
 # Wireguard
-nmcli connection import type wireguard file secrets/wg*
-nmcli connection modify wg-home connect.autoconnect no
+cd secrets
+nmcli connection import type wireguard file wg*
+# TODO: TEST Shell expansion. It *should* work
+nmcli connection modify wg* connect.autoconnect no
 # OpenVPN
 sudo pacman -S networkmanager-openvpn --noconfirm
 nmcli connection import type openvpn file secrets/ovpn*

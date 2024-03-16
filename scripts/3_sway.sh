@@ -17,10 +17,11 @@ sudo pacman -Syu ttf-dejavu ttf-firacode-nerd ttf-liberation adobe-source-han-sa
 # sudo pacman -S breeze breeze-gtk --noconfirm
 # Sound
 sudo pacman -S pipewire pipewire-audio pipewire-pulse pipewire-alsa pipewire-v4l2 pipewire-jack wireplumber --noconfirm
-# NetworkManager (Might need polkit)
-sudo pacman -S networkmanager
+systemctl enable --user pipewire
 # Sway!
-sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland alacritty fuzzel
+sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland alacritty fuzzel --noconfirm
+# Extras for sway
+sudo pacman -S mako slurp grim wl-clipboard --noconfirm
 # Not for my system
 # sudo pacman -S iio-sensor-proxy maliit-keyboard switcheroo-control --noconfirm
 

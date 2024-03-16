@@ -73,8 +73,7 @@ echo
 read -n 1 -rp 'Do you want to use bcachefs encryption? [y/N] ' ENCRYPTION
 echo
 if [[ ${ENCRYPTION} =~ [yY] ]]; then
-    bcachefs format --encrypted --durability=0 --discard ${ROOT_PARTITION}
-    bcachefs unlock ${ROOT_PARTITION}
+    bcachefs format --encrypted --discard ${ROOT_PARTITION}
 else
     bcachefs format --discard ${ROOT_PARTITION}
 fi
