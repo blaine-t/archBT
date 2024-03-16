@@ -12,7 +12,7 @@ cat << EOF
 This script is used to install programs for after install
 This is customized to my LG Gram 15Z90Q-P.AAC6U1 with an i5-1240p running Wayland
 It does multiple unreviewed AUR installs so be aware
-It is currently written for a KDE install but will be adapted to support KDE and Sway in the future
+It is currently written for a KDE install
 
 EOF
 
@@ -63,9 +63,9 @@ echo '1' | paru -a oh-my-bash-git --skipreview
 cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
 
 # Install Firefox
-sudo pacman -S firefox plasma-browser-integration --noconfirm
+sudo pacman -S firefox --noconfirm
 # Extensions
-sudo pacman -S firefox-ublock-origin firefox-decentraleyes firefox-dark-reader --noconfirm
+sudo pacman -S firefox-ublock-origin firefox-dark-reader --noconfirm
 # Firefox cache in ram (UNSTABLE NOT RECOMMENDED)
 # sudo pacman -S profile-sync-daemon --noconfirm
 # systemctl --user enable --now psd
@@ -84,21 +84,11 @@ sudo pacman -S firefox-ublock-origin firefox-decentraleyes firefox-dark-reader -
 echo "!---!"
 echo "Audio fix is untested. If it doesn't work properly for you delete or modify the file at /etc/modprobe.d/audiofix.conf"
 echo "!---!"
-sudo pacman -S pipewire pipewire-audio pipewire-alsa pipewire-pulse pipewire-jack qpwgraph --noconfirm
 sudo cp config/modprobe/audiofix.conf /etc/modprobe.d/audiofix.conf
 
-# Install display management
-sudo pacman -S kscreen --noconfirm
-
-# Install power management
-sudo pacman -S powerdevil power-profiles-daemon powertop --noconfirm
-# kinfocenter is not required but gives useful info especially about battery
-sudo pacman -S kinfocenter --noconfirm
-
-# Portal setup for dolphin in every file picker
-sudo pacman -S xdg-desktop-portal xdg-desktop-portal-kde --noconfirm
+# Portal setup
+sudo pacman -S xdg-desktop-portal --noconfirm
 echo 'export GTK_USE_PORTAL=1' >> ~/.profile
-echo 'export XDG_CURRENT_DESKTOP=KDE' >> ~/.profile
 
 # Install Obsidian
 sudo pacman -S obsidian --noconfirm
@@ -111,22 +101,17 @@ sudo cp config/programs/chrony.conf /etc/chrony.conf
 echo '1' | paru -a networkmanager-dispatcher-chrony --skipreview
 
 # Bluetooth support
-sudo pacman -S bluez bluez-utils bluedevil --noconfirm
+sudo pacman -S bluez bluez-utils --noconfirm
 sudo systemctl enable --now bluetooth
 
 # Yubico authenticator install
-echo '1' | paru -a yubico-authenticator-bin --skipreview
 sudo pacman -S pcsclite --noconfirm
 sudo systemctl enable --now pcscd
-
-# Discord install
-# echo '1' | paru -a ttf-symbola --skipreview
-sudo pacman -S discord --noconfirm
+echo '1' | paru -a yubico-authenticator-bin --skipreview
 
 # VS Code Install
 echo '1' | paru -a visual-studio-code-bin --skipreview
 cp config/programs/code-flags.conf ~/.config/code-flags.conf
-
 
 # Bash history file unlimited support
 echo 'export HISTSIZE="toInfinity"' >> ~/.bashrc
@@ -143,9 +128,6 @@ nmcli connection modify wg* connect.autoconnect no
 # OpenVPN
 sudo pacman -S networkmanager-openvpn --noconfirm
 nmcli connection import type openvpn file secrets/ovpn*
-
-# Install screenshot
-sudo pacman -S spectacle --noconfirm
 
 # Install Spotify xWayland to have media support
 sudo pacman -S spotify-launcher --noconfirm
@@ -180,7 +162,7 @@ sudo pacman -S python-pip --noconfirm
 
 # Java setup
 sudo pacman -S jdk-openjdk --noconfirm
-echo '1' | paru -a eclipse-java --skipreview
+# echo '1' | paru -a eclipse-java --skipreview
 # Fix font aliasing in GTK apps (needs relogin)
 sudo pacman -S xdg-desktop-portal-gtk --noconfirm
 # To setup gpg signing go to preferences and lookup gpg and switch from bouncy castle to an external gpg executable /usr/bin/gpg
@@ -188,9 +170,6 @@ sudo pacman -S xdg-desktop-portal-gtk --noconfirm
 # Install CUPS with max compatibility
 sudo pacman -S cups cups-pdf ghostscript gsfonts foomatic-db-engine foomatic-db foomatic-db-ppds foomatic-db-nonfree foomatic-db-nonfree-ppds gutenprint foomatic-db-gutenprint-ppds --noconfirm
 sudo systemctl enable --now cups.socket
-
-# Give styling options to apps
-sudo pacman -S kde-gtk-config gnome-settings-daemon gsettings-desktop-schemas gsettings-qt --noconfirm
 
 # Dictionary for apps to use for spellcheck
 sudo pacman -S hunspell hunspell-en_US --noconfirm
@@ -215,16 +194,17 @@ EOF
 
 # Install chromium with video accel for video decoding
 # Syu because just added chaotic-aur
-sudo pacman -Syu libva-utils vdpauinfo chromium-wayland-vaapi --noconfirm
-cp desktops/chromium.desktop ~/.local/share/applications
-# Intel only
+# sudo pacman -Syu libva-utils vdpauinfo chromium-wayland-vaapi --noconfirm
+# cp desktops/chromium.desktop ~/.local/share/applications
+
+# Intel only VDPAU support
 echo 'export VDPAU_DRIVER=va_gl' >> ~/.profile
-echo 'export LIBVA_DRIVER_NAME=iHD' >> ~/.profile
+# echo 'export LIBVA_DRIVER_NAME=iHD' >> ~/.profile
 source ~/.profile
 
 # libvirt install
 # Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
-sudo pacman -S virt-manager qemu-desktop dnsmasq iptables-nft swtpm --noconfirm
+sudo pacman -S virt-manager qemu-desktop dnsmasq nftables swtpm --noconfirm
 sudo usermod -aG libvirt ${USER}
 
 sudo sed -i 's/#unix_sock_group/unix_sock_group/g' /etc/libvirt/libvirtd.conf

@@ -20,8 +20,6 @@ sudo pacman -S pipewire pipewire-audio pipewire-pulse pipewire-alsa pipewire-v4l
 systemctl enable --user pipewire
 # Sway!
 sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland alacritty fuzzel --noconfirm
-# Extras for sway
-sudo pacman -S mako slurp grim wl-clipboard --noconfirm
 # Not for my system
 # sudo pacman -S iio-sensor-proxy maliit-keyboard switcheroo-control --noconfirm
 
