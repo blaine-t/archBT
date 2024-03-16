@@ -16,7 +16,7 @@ This version is adapted to Sway
 EOF
 
 # Install screen management
-sudo pacman -Syu kanshi
+sudo pacman -Syu kanshi --noconfirm
 echo '1' | paru -a wdisplays --skipreview
 
 # Portal setup
@@ -27,10 +27,10 @@ echo 'export XDG_CURRENT_DESKTOP=sway' >> ~/.profile
 sudo pacman -S slurp grim wl-clipboard --noconfirm
 
 # Install notifications
-sudo pacman -S mako --no-confirm
+sudo pacman -S mako --noconfirm
 
 # Waybar for good topbar
-sudo pacman -S waybar --no-confirm
+sudo pacman -S waybar --noconfirm
 
 # Copy over sway config
 cp config/dotfiles/sway/config
