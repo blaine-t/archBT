@@ -122,12 +122,12 @@ echo ". ${HOME}/.bashrc" >> ~/.profile # Needed for TTY login
 sudo systemctl enable --now systemd-resolved
 # Wireguard
 cd secrets
-nmcli connection import type wireguard file wg*
+nmcli connection import type wireguard file *.conf
 # TODO: TEST Shell expansion. It *should* work
-nmcli connection modify wg* connect.autoconnect no
+nmcli connection modify *.conf connect.autoconnect no
 # OpenVPN
 sudo pacman -S networkmanager-openvpn --noconfirm
-nmcli connection import type openvpn file secrets/ovpn*
+nmcli connection import type openvpn file *.ovpn
 
 # Install Spotify xWayland to have media support
 sudo pacman -S spotify-launcher --noconfirm

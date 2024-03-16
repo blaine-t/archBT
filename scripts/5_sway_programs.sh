@@ -29,3 +29,9 @@ sudo pacman -S slurp grim wl-clipboard --noconfirm
 
 # Install notifications
 sudo pacman -S mako --no-confirm
+
+# Waybar for good topbar
+sudo pacman -S waybar --no-confirm
+
+# Copy over sway config
+cp config/dotfiles/sway/config

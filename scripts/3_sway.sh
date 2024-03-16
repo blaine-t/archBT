@@ -10,7 +10,7 @@ cd ..
 
 echo 'This script will install Sway. MUST be run as user.'
 
-# Install Sway minimum with pipewire audio, networkmanager, xwayland, alacritty and fuzzel
+# Install Sway minimum with pipewire audio, networkmanager, xwayland, wezterm and fuzzel
 # Modern internet fonts
 sudo pacman -Syu ttf-dejavu ttf-firacode-nerd ttf-liberation adobe-source-han-sans-otc-fonts ttf-hanazono noto-fonts-emoji noto-fonts-cjk --noconfirm
 # Old theme
@@ -19,7 +19,7 @@ sudo pacman -Syu ttf-dejavu ttf-firacode-nerd ttf-liberation adobe-source-han-sa
 sudo pacman -S pipewire pipewire-audio pipewire-pulse pipewire-alsa pipewire-v4l2 pipewire-jack wireplumber --noconfirm
 systemctl enable --user pipewire
 # Sway!
-sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland alacritty fuzzel --noconfirm
+sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland wezterm fuzzel --noconfirm
 # Not for my system
 # sudo pacman -S iio-sensor-proxy maliit-keyboard switcheroo-control --noconfirm
 
