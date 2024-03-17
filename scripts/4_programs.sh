@@ -179,6 +179,12 @@ sudo systemctl enable --now cups.socket
 # Dictionary for apps to use for spellcheck
 sudo pacman -S hunspell hunspell-en_US --noconfirm
 
+# Gnome Keyring for secrets
+sudo pacman -S gnome-keyring --noconfirm
+
+# Add my favorite task manager and info app
+sudo pacman -S btop fastfetch --noconfirm
+
 # KDE Connect for phone integration
 # sudo pacman -S kdeconnect --noconfirm
 

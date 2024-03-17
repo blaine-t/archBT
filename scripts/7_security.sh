@@ -47,7 +47,8 @@ sudo cp config/sysctl/51-ignore-pings.conf /etc/sysctl.d/
 sudo cp config/sysctl/51-kptr-restrict.conf /etc/sysctl.d/
 
 # Disable unprivledged sandbox
-sudo cp config/sysctl/51-unprivileged-sandbox.conf /etc/sysctl.d/
+# Breaks a lot of electron apps that want sandbox. Better to let them be.
+# sudo cp config/sysctl/51-unprivileged-sandbox.conf /etc/sysctl.d/
 
 # Add some networking security and performance features
 sudo cp config/sysctl/99-networking.conf /etc/sysctl.d/

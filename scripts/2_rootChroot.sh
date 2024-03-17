@@ -182,7 +182,8 @@ EOF
 
 # Copy archBT over to user and switch to user
 mkdir -p /home/${USERNAME}/archBT
-mv ./* /home/${USERNAME}/archBT
+cd ..
+mv archBT /home/${USERNAME}/archBT
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/archBT
 cd /home/${USERNAME}/archBT/scripts
 rmdir /archBT
