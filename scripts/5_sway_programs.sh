@@ -39,6 +39,9 @@ cp config/dotfiles/sway/config ~/.config/sway
 # Theming for sway
 sudo pacman -S qt5ct --noconfirm
 
+# QT wayland stuff
+sudo pacman -S qt5-wayland qt6-wayland
+
 # Write theming information to .profile
 cat << EOF >> ~/.profile
 ### Backends
@@ -68,3 +71,5 @@ gsettings set org.gnome.desktop.interface icon-theme la-capitaine-icon-theme
 gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark
 
 EOF
+
+source ~/.profile
