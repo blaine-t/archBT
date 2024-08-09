@@ -127,11 +127,11 @@ done
 
 # Copy over bcachefs hook and install
 # NEEDED UNTIL BCACHEFS TOOLS ARE FIXED
-cp mkinitcpio/hooks/bcachefs /etc/initcpio/hooks/
-cp mkinitcpio/install/bcachefs /etc/initcpio/install/
+# cp mkinitcpio/hooks/bcachefs /etc/initcpio/hooks/
+# cp mkinitcpio/install/bcachefs /etc/initcpio/install/
 
 # Pin Bcachefs-tools until 1.6.4 bugs fixed
-pacman -U https://archive.archlinux.org/packages/b/bcachefs-tools/bcachefs-tools-3%3A1.6.3-1-x86_64.pkg.tar.zst
+# pacman -U https://archive.archlinux.org/packages/b/bcachefs-tools/bcachefs-tools-3%3A1.6.3-1-x86_64.pkg.tar.zst
 
 # Regenerate the initramfs
 mkinitcpio -P
@@ -183,7 +183,7 @@ EOF
 # Copy archBT over to user and switch to user
 mkdir -p /home/${USERNAME}/archBT
 cd ..
-mv archBT /home/${USERNAME}/archBT
+mv archBT /home/${USERNAME}
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/archBT
 cd /home/${USERNAME}/archBT/scripts
 rmdir /archBT
