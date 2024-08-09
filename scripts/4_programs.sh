@@ -15,6 +15,7 @@ EOF
 sudo systemctl enable --now systemd-resolved
 # Wireguard
 mkdir -p secrets/.gnupg
+mkdir -p secrets/.ssh
 cd secrets
 for file in *.conf; do
     nmcli connection import type wireguard file ${file}
@@ -36,18 +37,18 @@ IFS=$'\n\t'
 read -rp 'Enter git username: ' USERNAME
 read -rp 'Enter git email: ' EMAIL
 
-## Git config
+# Git config
 git config --global init.defaultbranch main
 git config --global user.name ${USERNAME}
 git config --global user.email ${EMAIL}
-## GPG support
-cp -r secrets/.gnupg ~/.gnupg
+# GPG support
+cp -r secrets/.gnupg ~
 gpg --list-keys --keyid-format=long
 read -rp 'Enter git pubkey: ' PUBKEYID
 git config --global user.signingkey ${PUBKEYID}
 git config --global commit.gpgsign true
 
-# Install audio support with Intel audiofix TODO: UPDATE IT
+# Install audio support with Intel audiofix
 read -rp 'Are you using an Intel audio and video codec? ' INTEL
 if [[ ${INTEL} =~ [yY] ]]; then
     echo "!---!"
@@ -63,6 +64,9 @@ fi
 
 # Prep sudo
 sudo -l
+
+# SSH secrets copy
+cp -r secrets/.ssh ~
 
 # Reflector setup
 sudo pacman -Syu reflector --noconfirm
