@@ -14,6 +14,7 @@ EOF
 # VPN Setup (Do before strict mode)
 sudo systemctl enable --now systemd-resolved
 # Wireguard
+mkdir -p secrets/.gnupg
 cd secrets
 for file in *.conf; do
     nmcli connection import type wireguard file ${file}
@@ -35,9 +36,6 @@ IFS=$'\n\t'
 read -rp 'Enter git username: ' USERNAME
 read -rp 'Enter git email: ' EMAIL
 
-# Prep sudo
-sudo -l
-
 ## Git config
 git config --global init.defaultbranch main
 git config --global user.name ${USERNAME}
@@ -48,6 +46,23 @@ gpg --list-keys --keyid-format=long
 read -rp 'Enter git pubkey: ' PUBKEYID
 git config --global user.signingkey ${PUBKEYID}
 git config --global commit.gpgsign true
+
+# Install audio support with Intel audiofix TODO: UPDATE IT
+read -rp 'Are you using an Intel audio and video codec? ' INTEL
+if [[ ${INTEL} =~ [yY] ]]; then
+    echo "!---!"
+    echo "Audio fix is untested. If it doesn't work properly for you delete or modify the file at /etc/modprobe.d/audiofix.conf"
+    echo "!---!"
+    sudo cp config/modprobe/audiofix.conf /etc/modprobe.d/audiofix.conf
+
+    # Intel only VDPAU support
+    echo 'export VDPAU_DRIVER=va_gl' >> ~/.profile
+    # echo 'export LIBVA_DRIVER_NAME=iHD' >> ~/.profile
+    source ~/.profile
+fi
+
+# Prep sudo
+sudo -l
 
 # Reflector setup
 sudo pacman -Syu reflector --noconfirm
@@ -96,12 +111,6 @@ sudo pacman -S firefox-ublock-origin firefox-dark-reader --noconfirm
 # browser.cache.memory.capacity = 1048576
 # Check here after install to make sure you have everything working: https://wiki.archlinux.org/title/Firefox
 
-# Install audio support with Intel audiofix
-echo "!---!"
-echo "Audio fix is untested. If it doesn't work properly for you delete or modify the file at /etc/modprobe.d/audiofix.conf"
-echo "!---!"
-sudo cp config/modprobe/audiofix.conf /etc/modprobe.d/audiofix.conf
-
 # Portal setup
 sudo pacman -S xdg-desktop-portal --noconfirm
 echo 'export GTK_USE_PORTAL=1' >> ~/.profile
@@ -134,6 +143,9 @@ echo 'export HISTSIZE="toInfinity"' >> ~/.bashrc
 echo 'export HISTFILESIZE="andBeyond"' >> ~/.bashrc
 echo ". ${HOME}/.bashrc" >> ~/.profile # Needed for TTY login
 
+# Last .profile edit made. Source it
+source ~/.profile
+
 # Install Spotify xWayland to have media support
 sudo pacman -S spotify-launcher --noconfirm
 
@@ -143,6 +155,7 @@ sudo pacman -S steam --noconfirm
 # Install Slack
 # Login Fix: https://stackoverflow.com/questions/70867064/signing-into-slack-desktop-not-working-on-4-23-0-64-bit-ubuntu
 echo '1' | paru -a slack-electron --skipreview
+mkdir -p ~/.local/share/applications
 cp desktops/slack.desktop ~/.local/share/applications
 
 # Install Teams (It somehow just works)
@@ -196,11 +209,6 @@ sudo systemctl enable --now paccache.timer
 # Syu because just added chaotic-aur
 # sudo pacman -Syu libva-utils vdpauinfo chromium-wayland-vaapi --noconfirm
 # cp desktops/chromium.desktop ~/.local/share/applications
-
-# Intel only VDPAU support
-echo 'export VDPAU_DRIVER=va_gl' >> ~/.profile
-# echo 'export LIBVA_DRIVER_NAME=iHD' >> ~/.profile
-source ~/.profile
 
 # libvirt install
 # Win11 install guide: https://linustechtips.com/topic/1379063-windows-11-in-virt-manager/
