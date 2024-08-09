@@ -183,9 +183,13 @@ if [[ ${GPU} =~ [aA] ]];  then
     fi
     
     elif [[ ${GPU} =~ [vV] ]]; then
-    # Install Nvidia-DKMS to have support for all kernels no matter what
-    pacstrap /mnt nvidia-dkms
-    
+    # Install Nvidia if user is just using Linux or Nvidia-DKMS to have support for all kernels no matter what
+    if [[ ! ${LTS} =~ [yY] ]] && [[ ! ${ZEN} =~ [yY] ]]; then
+        pacstrap /mnt nvidia
+    else
+        pacstrap /mnt nvidia-dkms
+    fi
+
     # If 32 bit support add 32 bit packages
     if [[ ${LIB32} =~ [yY] ]]; then
         pacstrap /mnt lib32-nvidia-utils
