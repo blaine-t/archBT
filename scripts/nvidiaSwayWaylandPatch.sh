@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Known working git versions
+# egl-wayland-git 1.1.15.r0.g5a5b17e-1
+# sway-git 1.10.r7388.f344e9d-1
+# wlroots-git 0.18.0.r47.g0a388a14f-1
+# xdg-desktop-portal-wlr-git 0.7.1.r20.gd9ada84-1
+
 # Bash Strict Mode [aaron maxwell](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
 set -euo pipefail
 IFS=$'\n\t'
