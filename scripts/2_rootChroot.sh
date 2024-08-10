@@ -71,19 +71,27 @@ fi
 # Enable network control on boot
 systemctl enable NetworkManager
 
-# Add in mkinitcpio hooks for unlocking the root partition
+# Remove mkinitcpio hooks for consolefont to silence warning
 if [[ ${ENCRYPTION} =~ [yY] ]]; then
-    sed -i 's/consolefont block filesystems/consolefont block filesystems bcachefs/g' /etc/mkinitcpio.conf
+    sed -i 's/consolefont block filesystems/block filesystems/g' /etc/mkinitcpio.conf
+fi
+
+# Add in mkinitcpio modules for Nvidia drivers
+if [[ ${GPU} =~ [vV] ]]; then
+    sed -i 's/MODULES=()/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/g' /etc/mkinitcpio.conf
 fi
 
 # Set cmdline parameters for kernel
 PRUUID=$(blkid -s PARTUUID -o value ${ROOT_PARTITION})
-# ASPM powersupersave might not be working
-echo "root=/dev/disk/by-partuuid/${PRUUID} rw quiet lockdown=integrity bgrt_disable nmi_watchdog=0 acpi_osi=\"Windows 2015\" acpi_osi=! pcie_aspm=force pcie_aspm.policy=powersupersave drm.vblankoffdelay=1" > /etc/kernel/cmdline
+# ASPM powersupersave might not be working TODO: Look into adding optional lockdown=integrity pcie_aspm=force acpi_osi=\"Windows 2015\" acpi_osi=! pcie_aspm.policy=powersupersave but for now taken out
+echo -n "root=/dev/disk/by-partuuid/${PRUUID} rw quiet bgrt_disable nmi_watchdog=0 drm.vblankoffdelay=1" > /etc/kernel/cmdline
 
-# Add boot entries for standard linux and the fallback image
-# AND
-# Replace the default linux Unified Kernel Config with our new one
+# Add cmdline args for Nvidia drm
+if [[ ${GPU} =~ [vV] ]]; then
+    echo ' nvidia_drm.modeset=1 nvidia_drm.fbdev=1' >> /etc/kernel/cmdline
+fi
+
+# Add boot entries for kernels
 boot_entries=0
 query='Which entry should be in the 0 position in order '
 if [[ ${LINUX} =~ [yY] ]]; then

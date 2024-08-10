@@ -184,10 +184,13 @@ sudo pacman -S python-pip --noconfirm
 
 # Java setup
 sudo pacman -S jdk-openjdk --noconfirm
-# echo '1' | paru -a eclipse-java --skipreview
+echo '1' | paru -a eclipse-java --skipreview
 # Fix font aliasing in GTK apps (needs relogin)
 sudo pacman -S xdg-desktop-portal-gtk --noconfirm
 # To setup gpg signing go to preferences and lookup gpg and switch from bouncy castle to an external gpg executable /usr/bin/gpg
+
+# Fixes mkinitcpio missing firmware
+echo '1' | paru -a upd72020x-fw --skipreview
 
 # Install CUPS with max compatibility
 sudo pacman -S cups cups-pdf ghostscript gsfonts foomatic-db-engine foomatic-db foomatic-db-ppds foomatic-db-nonfree foomatic-db-nonfree-ppds gutenprint foomatic-db-gutenprint-ppds --noconfirm
