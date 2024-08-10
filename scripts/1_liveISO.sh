@@ -194,8 +194,11 @@ if [[ ${GPU} =~ [aA] ]];  then
     if [[ ${LIB32} =~ [yY] ]]; then
         pacstrap /mnt lib32-nvidia-utils
     fi
-    echo 'VA-API support is offered through AUR package that has to be installed in user space'
-    echo 'https://wiki.archlinux.org/title/Hardware_video_acceleration'
+    
+    if [[ ${VACCEL} =~ [yY] ]]; then
+        pacstrap /mnt libva-nvidia-driver
+    fi
+
     elif [[ ${GPU} =~ [iI] ]]; then
     # Add DRI driver for 3D acceleration with mesa
     # Add vulkan support with vulkan-intel
@@ -210,6 +213,10 @@ if [[ ${GPU} =~ [aA] ]];  then
     if [[ ${LIB32} =~ [yY] ]]; then
         pacstrap /mnt lib32-mesa lib32-vulkan-intel
     fi
+fi
+
+if [[ ${VACCEL} =~ [yY] ]]; then
+    pacstrap /mnt libva-utils vdpauinfo nvtop
 fi
 
 # Set clock using internet
