@@ -116,6 +116,12 @@ echo 'export MOZ_ENABLE_WAYLAND=1' >> ~/.profile
 # browser.cache.memory.capacity = 1048576
 # Check here after install to make sure you have everything working: https://wiki.archlinux.org/title/Firefox
 
+# Install Brave [for when Chrome is needed ;(]
+echo '1' | paru -a brave-bin --skip-review
+
+# Install preferred video player mpv
+sudo pacman -S mpv --noconfirm
+
 # Portal setup
 sudo pacman -S xdg-desktop-portal --noconfirm
 echo 'export GTK_USE_PORTAL=1' >> ~/.profile
@@ -207,6 +213,18 @@ sudo pacman -S btop fastfetch --noconfirm
 
 # Add OBS for screen recording
 sudo pacman -S obs-studio
+
+# Inkscape and Krita for 2D art
+sudo pacman -S inkscape krita
+
+# Blender for 3D rendering
+sudo pacman -S blender
+
+# Install my preferred Discord client
+echo '1' | paru -a vesktop_electron --skipreview
+
+# Install my preferred Spotify client
+echo '1' | paru -a psst-git --skipreview
 
 # KDE Connect for phone integration
 # sudo pacman -S kdeconnect --noconfirm
