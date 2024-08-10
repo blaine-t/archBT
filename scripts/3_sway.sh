@@ -18,7 +18,9 @@ sudo pacman -Syu ttf-dejavu ttf-firacode-nerd ttf-liberation adobe-source-han-sa
 sudo pacman -S pipewire pipewire-audio pipewire-pulse pipewire-alsa pipewire-v4l2 pipewire-jack wireplumber --noconfirm
 systemctl enable --user pipewire
 # Sway!
-sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland alacritty fuzzel --noconfirm
+sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland alacritty fuzzel seatd --noconfirm
+sudo usermod -aG seatd ${USER}
+sudo systemctl enable --now seatd
 # Not for my system
 # sudo pacman -S iio-sensor-proxy maliit-keyboard switcheroo-control --noconfirm
 
