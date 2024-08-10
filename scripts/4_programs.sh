@@ -49,7 +49,7 @@ git config --global user.signingkey ${PUBKEYID}
 git config --global commit.gpgsign true
 
 # Install audio support with Intel audiofix
-read -rp 'Are you using an Intel audio and video codec? ' INTEL
+read -n 1 -rp 'Are you using an Intel audio and video codec? ' INTEL
 if [[ ${INTEL} =~ [yY] ]]; then
     echo "!---!"
     echo "Audio fix is untested. If it doesn't work properly for you delete or modify the file at /etc/modprobe.d/audiofix.conf"
@@ -146,7 +146,6 @@ cp config/programs/code-flags.conf ~/.config/code-flags.conf
 # Bash history file unlimited support
 echo 'export HISTSIZE="toInfinity"' >> ~/.bashrc
 echo 'export HISTFILESIZE="andBeyond"' >> ~/.bashrc
-echo ". ${HOME}/.bashrc" >> ~/.profile # Needed for TTY login
 
 # Last .profile edit made. Source it
 source ~/.profile
@@ -205,6 +204,9 @@ sudo pacman -S gnome-keyring --noconfirm
 
 # Add my favorite task manager and info app
 sudo pacman -S btop fastfetch --noconfirm
+
+# Add OBS for screen recording
+sudo pacman -S obs-studio
 
 # KDE Connect for phone integration
 # sudo pacman -S kdeconnect --noconfirm

@@ -42,6 +42,9 @@ sudo pacman -S qt5ct --noconfirm
 # QT wayland stuff
 sudo pacman -S qt5-wayland qt6-wayland --noconfirm
 
+# Emoji selector
+echo '1' | paru -a bemoji --skipreview
+
 # Write theming information to .profile
 cat << EOF >> ~/.profile
 ### Backends

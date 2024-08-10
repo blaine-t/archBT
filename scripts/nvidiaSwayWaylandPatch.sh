@@ -21,7 +21,7 @@ paru xdg-desktop-portal-wlr-git
 
 # Add config for portal to make OBS work
 mkdir -p ~/.config/xdg-desktop-portal
-cp ../config/programs/portals.conf ~/.config/xdg-desktop-portal
+cp config/programs/portals.conf ~/.config/xdg-desktop-portal
 
 # Add env variable so sway launches instead of hanging
 echo 'export WLR_DRM_NO_ATOMIC=1' >> ~/.profile
