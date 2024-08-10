@@ -40,7 +40,7 @@ cp config/dotfiles/sway/config ~/.config/sway
 sudo pacman -S qt5ct --noconfirm
 
 # QT wayland stuff
-sudo pacman -S qt5-wayland qt6-wayland
+sudo pacman -S qt5-wayland qt6-wayland --noconfirm
 
 # Write theming information to .profile
 cat << EOF >> ~/.profile

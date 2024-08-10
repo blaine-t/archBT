@@ -19,10 +19,12 @@ sudo pacman -S pipewire pipewire-audio pipewire-pulse pipewire-alsa pipewire-v4l
 systemctl enable --user pipewire
 # Sway!
 sudo pacman -S sway swaylock swayidle swaybg xorg-xwayland alacritty fuzzel seatd --noconfirm
-sudo usermod -aG seatd ${USER}
-sudo systemctl enable --now seatd
 # Not for my system
 # sudo pacman -S iio-sensor-proxy maliit-keyboard switcheroo-control --noconfirm
 
 echo 'This does not include a display manager. If you want one then install GDM or SDDM.'
 echo 'You can optionally install my starter programs by running 4_programs.sh AFTER REBOOT. READ IT BEFORE RUNNING IT'
+
+# After warning in case running in chroot and --now throws error
+sudo usermod -aG seat ${USER}
+sudo systemctl enable --now seatd

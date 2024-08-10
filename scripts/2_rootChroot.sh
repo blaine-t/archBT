@@ -194,5 +194,4 @@ cd ..
 mv archBT /home/${USERNAME}
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/archBT
 cd /home/${USERNAME}/archBT/scripts
-rmdir /archBT
 su ${USERNAME}

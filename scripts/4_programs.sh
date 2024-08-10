@@ -101,6 +101,7 @@ cat /usr/share/oh-my-bash/bashrc >> ~/.bashrc
 sudo pacman -S firefox --noconfirm
 # Extensions
 sudo pacman -S firefox-ublock-origin firefox-dark-reader --noconfirm
+echo 'export MOZ_ENABLE_WAYLAND=1' >> ~/.profile
 # Firefox cache in ram (UNSTABLE NOT RECOMMENDED)
 # sudo pacman -S profile-sync-daemon --noconfirm
 # systemctl --user enable --now psd
