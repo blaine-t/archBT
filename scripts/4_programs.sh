@@ -173,7 +173,7 @@ cp desktops/slack.desktop ~/.local/share/applications
 # cp desktops/teams-for-linux.desktop ~/.local/share/applications
 
 # Node setup
-echo '1' | paru -a volta-bin --skipreview
+echo '1' | paru -a volta --skipreview
 volta setup
 source ~/.bashrc
 volta install node@latest
