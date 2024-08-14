@@ -76,8 +76,8 @@ sudo systemctl enable --now reflector
 # Install Rust for paru
 sudo pacman -Syu rustup --noconfirm
 rustup default stable
-echo 'export CARGO_HOME="$HOME/.cargo' >> ~/.bashrc
-echo 'export PATH="$CARGO_HOME/bin:$PATH' >> ~/.bashrc
+echo 'export CARGO_HOME="$HOME/.cargo"' >> ~/.bashrc
+echo 'export PATH="$CARGO_HOME/bin:$PATH"' >> ~/.bashrc
 
 # Install [Paru](https://github.com/Morganamilo/paru#installation)
 # Used to easily download and install applications from the AUR
